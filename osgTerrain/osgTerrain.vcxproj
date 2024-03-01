@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{A7B5691C-1C86-48B0-81BC-F22A0C6E49B3}</ProjectGuid>
+    <RootNamespace>osgTerrain</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>osgTerrain</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>E:\thirdLibs\OpenSceneGraph\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\thirdLibs\OpenSceneGraph\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\boost_1_78_0;E:\thirdLibs\eigen-3.4.0;E:\thirdLibs\CGAL-5.4-beta1\include;E:\projects\reconTerrainPhysics\imgui;E:\thirdLibs\imgui\examples\libs\glfw\include;E:\thirdLibs\OpenSceneGraph\include;E:\projects\reconTerrainPhysics;E:\projects\commonClass;E:\thirdLibs\PhysX\physx\install\vc15win64\PhysX\include;E:\thirdLibs\vcglib;E:\thirdLibs\assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\thirdLibs\imgui\examples\libs\glfw\lib-vc2010-64;E:\thirdLibs\OpenSceneGraph\lib;E:\thirdLibs\PhysX\physx\bin\win.x86_64.vc142.mt\debug;E:\thirdLibs\assimp\build\lib\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\thirdLibs\vcglib;E:\thirdLibs\OpenSceneGraph\include;E:\thirdLibs\imgui\examples\libs\glfw\include;E:\thirdLibs\CGAL-5.4-beta1\include;D:\boost_1_78_0;E:\thirdLibs\eigen-3.4.0;./;E:\projects\commonClass;E:\thirdLibs\PhysX\physx\install\vc15win64\PhysX\include;E:\thirdLibs\assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\thirdLibs\OpenSceneGraph\lib;E:\thirdLibs\imgui\examples\libs\glfw\lib-vc2010-64;E:\thirdLibs\PhysX\physx\install\vc15win64\PhysX\bin\win.x86_64.vc142.mt\release;E:\thirdLibs\assimp\installer\Assimp\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\..\bin\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>osgd.lib;osgViewerd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;TINYOBJLOADER_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>-bigobj /Zm100 /GX /GZ%(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;osgd.lib;osgViewerd.lib;osgDBd.lib;osgUtild.lib;osgGAd.lib;osgShadowd.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NOMINMAX;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;TINYOBJLOADER_IMPLEMENTATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>
+      </MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>osg.lib;osgViewer.lib;osgDB.lib;osgShadow.lib;osgGA.lib;osgUtil.lib;opengl32.lib;glfw3.lib;legacy_stdio_definitions.lib;OpenThreads.lib;PhysX_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXFoundation_64.lib;PhysXExtensions_static_64.lib;assimp-vc142-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\commonClass\commonFunc\counting_time.cpp" />
+    <ClCompile Include="..\commonClass\commonFunc\threadPoolExample.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\delaunay.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\graphgeometry.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\kdtree.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\octree.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\poissonsampler.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\vertexmap.cpp" />
+    <ClCompile Include="..\commonClass\commonGeometry\voronoi.cpp" />
+    <ClCompile Include="..\commonClass\commonMath\cone.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\commonClass\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\commonClass\nativefiledialog\nfd_common.c" />
+    <ClCompile Include="..\commonClass\nativefiledialog\nfd_win.cpp" />
+    <ClCompile Include="..\commonClass\xatlas\xatlas.cpp" />
+    <ClCompile Include="collaborative\dataStruct.cpp" />
+    <ClCompile Include="collaborative\trainTestCol.cpp" />
+    <ClCompile Include="collaborative\policyNet.cpp" />
+    <ClCompile Include="collaborative\trainer.cpp" />
+    <ClCompile Include="generator\naiveSurfaceNets\SurfaceNets.cpp" />
+    <ClCompile Include="generator\naiveSurfaceNets\voxel_mesher_surfacenet.cpp" />
+    <ClCompile Include="generator\terraingenerator.cpp" />
+    <ClCompile Include="generator\generator_recon.cpp" />
+    <ClCompile Include="generator\terraingenerator_roblox.cpp" />
+    <ClCompile Include="generator\terraingraphgenerator.cpp" />
+    <ClCompile Include="generator\terrainModification.cpp" />
+    <ClCompile Include="generator\voxel_mesher.cpp" />
+    <ClCompile Include="ImguiMainPage.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OsgImguiHandler.cpp" />
+    <ClCompile Include="osgManager.cpp" />
+    <ClCompile Include="commonOsg.cpp" />
+    <ClCompile Include="physics\physicsManager.cpp" />
+    <ClCompile Include="reconFrame.cpp" />
+    <ClCompile Include="terrains\meshgeneratormanager.cpp" />
+    <ClCompile Include="terrains\terrainManager.cpp" />
+    <ClCompile Include="terrains\voxelblock.cpp" />
+    <ClCompile Include="terrains\voxelBrush.cpp" />
+    <ClCompile Include="terrains\voxelmap.cpp" />
+    <ClCompile Include="voxels\voxelBuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\commonClass\commonFunc\counting_time.h" />
+    <ClInclude Include="..\commonClass\commonFunc\FastNoiseLite.h" />
+    <ClInclude Include="..\commonClass\commonFunc\math_defs.h" />
+    <ClInclude Include="..\commonClass\commonFunc\signalSlots.h" />
+    <ClInclude Include="..\commonClass\commonFunc\singleslot.h" />
+    <ClInclude Include="..\commonClass\commonFunc\threadPool.h" />
+    <ClInclude Include="..\commonClass\commonFunc\typedefs.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\delaunay.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\face.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\geometrymath.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\graphgeometry.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\halfedge.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\kdtree.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\nodemap.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\octree.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\poissonsampler.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\vertex.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\vertexmap.h" />
+    <ClInclude Include="..\commonClass\commonGeometry\voronoi.h" />
+    <ClInclude Include="..\commonClass\commonMath\box.h" />
+    <ClInclude Include="..\commonClass\commonMath\boxi.h" />
+    <ClInclude Include="..\commonClass\commonMath\cone.h" />
+    <ClInclude Include="..\commonClass\commonMath\frustum.h" />
+    <ClInclude Include="..\commonClass\commonMath\funcs.h" />
+    <ClInclude Include="..\commonClass\commonMath\noise.h" />
+    <ClInclude Include="..\commonClass\commonMath\plane.h" />
+    <ClInclude Include="..\commonClass\commonMath\Simplify.h" />
+    <ClInclude Include="..\commonClass\commonMath\triangle.h" />
+    <ClInclude Include="..\commonClass\commonMath\vector.h" />
+    <ClInclude Include="..\commonClass\commonMath\vector2.h" />
+    <ClInclude Include="..\commonClass\commonMath\vector2i.h" />
+    <ClInclude Include="..\commonClass\commonMath\vector3.h" />
+    <ClInclude Include="..\commonClass\commonMath\vector3i.h" />
+    <ClInclude Include="..\commonClass\imgui\imconfig.h" />
+    <ClInclude Include="..\commonClass\imgui\imgui.h" />
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\commonClass\imgui\imgui_internal.h" />
+    <ClInclude Include="..\commonClass\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\commonClass\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\commonClass\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\commonClass\nativefiledialog\common.h" />
+    <ClInclude Include="..\commonClass\nativefiledialog\nfd.h" />
+    <ClInclude Include="..\commonClass\nativefiledialog\nfd_common.h" />
+    <ClInclude Include="..\commonClass\xatlas\xatlas.h" />
+    <ClInclude Include="collaborative\baseModel.h" />
+    <ClInclude Include="collaborative\common.h" />
+    <ClInclude Include="collaborative\dataStruct.h" />
+    <ClInclude Include="collaborative\policyNet.h" />
+    <ClInclude Include="collaborative\trainer.h" />
+    <ClInclude Include="commonDef.h" />
+    <ClInclude Include="commonFunc.h" />
+    <ClInclude Include="generator\naiveSurfaceNets\SurfaceNets.h" />
+    <ClInclude Include="generator\naiveSurfaceNets\voxel_mesher_surfacenet.h" />
+    <ClInclude Include="generator\terraingenerator.h" />
+    <ClInclude Include="generator\generator_recon.h" />
+    <ClInclude Include="generator\terraingenerator_roblox.h" />
+    <ClInclude Include="generator\terraingraphgenerator.h" />
+    <ClInclude Include="generator\terrainModification.h" />
+    <ClInclude Include="generator\voxel_mesher.h" />
+    <ClInclude Include="ImguiMainPage.h" />
+    <ClInclude Include="OsgImguiHandler.h" />
+    <ClInclude Include="osgManager.h" />
+    <ClInclude Include="commonOsg.h" />
+    <ClInclude Include="physics\physicsManager.h" />
+    <ClInclude Include="reconFrame.h" />
+    <ClInclude Include="terrains\meshgeneratormanager.h" />
+    <ClInclude Include="terrains\terrainManager.h" />
+    <ClInclude Include="terrains\voxelblock.h" />
+    <ClInclude Include="terrains\voxelBrush.h" />
+    <ClInclude Include="terrains\voxelmap.h" />
+    <ClInclude Include="terrains\commonStruct.h" />
+    <ClInclude Include="voxels\array_slice.h" />
+    <ClInclude Include="voxels\common_enum.h" />
+    <ClInclude Include="voxels\fixed_array.h" />
+    <ClInclude Include="voxels\utility.h" />
+    <ClInclude Include="voxels\voxelBuffer.h" />
+    <ClInclude Include="voxels\voxel_constants.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

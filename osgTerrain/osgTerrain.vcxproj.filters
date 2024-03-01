@@ -1,0 +1,429 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{6454784b-099d-4ef0-a72e-f5f197c70d74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="terrains">
+      <UniqueIdentifier>{06dc96f6-37b9-4573-9251-0e1c11675ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commonMath">
+      <UniqueIdentifier>{934439f6-2a56-4489-bdcc-73112c1935f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="voxels">
+      <UniqueIdentifier>{28814f8d-8dfd-45b0-8faa-acca6a611e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commonGeometry">
+      <UniqueIdentifier>{3c995965-07e2-4edf-b0c5-6a2561e10a53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commonFunc">
+      <UniqueIdentifier>{9aeb9dee-714f-4a32-8de3-0ba2d324f559}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generator">
+      <UniqueIdentifier>{ac5efb58-fdfc-482d-9e7e-cfdcbfeb76c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generator\naiveSurfaceNets">
+      <UniqueIdentifier>{2b833858-14ff-481d-9bee-1952a1792bab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{28fae7d9-f8cc-42f6-9ed4-43a10a88f639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nativefiledialog">
+      <UniqueIdentifier>{aa799963-f6ac-4985-8bc9-44b9e40ffbee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="colliborate">
+      <UniqueIdentifier>{2d2f4a45-d8f9-43a2-ae93-7414a51a5be9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xatlax">
+      <UniqueIdentifier>{daa257c3-495f-4dde-a572-c80b11ba7c3a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OsgImguiHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="osgManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImguiMainPage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commonOsg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="terrains\meshgeneratormanager.cpp">
+      <Filter>terrains</Filter>
+    </ClCompile>
+    <ClCompile Include="terrains\terrainManager.cpp">
+      <Filter>terrains</Filter>
+    </ClCompile>
+    <ClCompile Include="terrains\voxelblock.cpp">
+      <Filter>terrains</Filter>
+    </ClCompile>
+    <ClCompile Include="terrains\voxelBrush.cpp">
+      <Filter>terrains</Filter>
+    </ClCompile>
+    <ClCompile Include="terrains\voxelmap.cpp">
+      <Filter>terrains</Filter>
+    </ClCompile>
+    <ClCompile Include="voxels\voxelBuffer.cpp">
+      <Filter>voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\terraingenerator.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\terraingenerator_roblox.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\terraingraphgenerator.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\terrainModification.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\voxel_mesher.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\naiveSurfaceNets\SurfaceNets.cpp">
+      <Filter>generator\naiveSurfaceNets</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\naiveSurfaceNets\voxel_mesher_surfacenet.cpp">
+      <Filter>generator\naiveSurfaceNets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonMath\cone.cpp">
+      <Filter>commonMath</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\delaunay.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\graphgeometry.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\kdtree.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\octree.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\poissonsampler.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\vertexmap.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonGeometry\voronoi.cpp">
+      <Filter>commonGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonFunc\counting_time.cpp">
+      <Filter>commonFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\commonFunc\threadPoolExample.cpp">
+      <Filter>commonFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="physics\physicsManager.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_impl_glfw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_impl_opengl3.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\nativefiledialog\nfd_common.c">
+      <Filter>nativefiledialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\nativefiledialog\nfd_win.cpp">
+      <Filter>nativefiledialog</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\generator_recon.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collaborative\dataStruct.cpp">
+      <Filter>colliborate</Filter>
+    </ClCompile>
+    <ClCompile Include="collaborative\policyNet.cpp">
+      <Filter>colliborate</Filter>
+    </ClCompile>
+    <ClCompile Include="collaborative\trainer.cpp">
+      <Filter>colliborate</Filter>
+    </ClCompile>
+    <ClCompile Include="collaborative\trainTestCol.cpp">
+      <Filter>colliborate</Filter>
+    </ClCompile>
+    <ClCompile Include="reconFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonClass\xatlas\xatlas.cpp">
+      <Filter>xatlax</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="OsgImguiHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commonFunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="osgManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commonDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImguiMainPage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commonOsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\array_slice.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\common_enum.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\fixed_array.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\utility.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\voxel_constants.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\meshgeneratormanager.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\terrainManager.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\voxelblock.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\voxelBrush.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\voxelmap.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="voxels\voxelBuffer.h">
+      <Filter>voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\terraingenerator.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\terraingenerator_roblox.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\terraingraphgenerator.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\terrainModification.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\voxel_mesher.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\naiveSurfaceNets\SurfaceNets.h">
+      <Filter>generator\naiveSurfaceNets</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\naiveSurfaceNets\voxel_mesher_surfacenet.h">
+      <Filter>generator\naiveSurfaceNets</Filter>
+    </ClInclude>
+    <ClInclude Include="terrains\commonStruct.h">
+      <Filter>terrains</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\box.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\boxi.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\cone.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\frustum.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\funcs.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\noise.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\plane.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\Simplify.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\triangle.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\vector.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\vector2.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\vector2i.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\vector3.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonMath\vector3i.h">
+      <Filter>commonMath</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\delaunay.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\face.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\geometrymath.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\graphgeometry.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\halfedge.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\kdtree.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\nodemap.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\octree.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\poissonsampler.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\vertex.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\vertexmap.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonGeometry\voronoi.h">
+      <Filter>commonGeometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\counting_time.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\FastNoiseLite.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\math_defs.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\signalSlots.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\singleslot.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\threadPool.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\commonFunc\typedefs.h">
+      <Filter>commonFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="physics\physicsManager.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_glfw.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_opengl3.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\nativefiledialog\common.h">
+      <Filter>nativefiledialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\nativefiledialog\nfd.h">
+      <Filter>nativefiledialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\nativefiledialog\nfd_common.h">
+      <Filter>nativefiledialog</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\generator_recon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collaborative\baseModel.h">
+      <Filter>colliborate</Filter>
+    </ClInclude>
+    <ClInclude Include="collaborative\common.h">
+      <Filter>colliborate</Filter>
+    </ClInclude>
+    <ClInclude Include="collaborative\dataStruct.h">
+      <Filter>colliborate</Filter>
+    </ClInclude>
+    <ClInclude Include="collaborative\policyNet.h">
+      <Filter>colliborate</Filter>
+    </ClInclude>
+    <ClInclude Include="collaborative\trainer.h">
+      <Filter>colliborate</Filter>
+    </ClInclude>
+    <ClInclude Include="reconFrame.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonClass\xatlas\xatlas.h">
+      <Filter>xatlax</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
