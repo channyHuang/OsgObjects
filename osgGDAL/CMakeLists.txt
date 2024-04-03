@@ -4,7 +4,7 @@ set(projectName osgGDAL)
 project(${projectName})
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GDAL REQUIRED)
 
 FILE(GLOB FILES_C "*.cpp")

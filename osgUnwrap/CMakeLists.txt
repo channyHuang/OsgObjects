@@ -4,7 +4,7 @@ set(projectName osgUnwrap)
 project(${projectName})
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(CGAL REQUIRED)
 find_package(Assimp REQUIRED)
 find_package(Boost REQUIRED)
@@ -33,6 +33,17 @@ ${FILES_C}
 ${FILES_H}
 )
 
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_link_libraries(${projectName}
+	imgui
+	commonOsg
+	GL
+	glfw
+	xatlas
+	${ASSIMP_LIBRARIES}
+	${OPENSCENEGRAPH_LIBRARIES}
+)
+else()
 target_link_libraries(${projectName}
 	imgui
 	commonOsg
@@ -42,3 +53,4 @@ target_link_libraries(${projectName}
 	${ASSIMP_LIBRARIES}
 	${OPENSCENEGRAPH_LIBRARIES}
 )
+endif()

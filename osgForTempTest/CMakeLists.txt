@@ -4,7 +4,7 @@ set(projectName osgForTempTest)
 project(${projectName})
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 
 FILE(GLOB FILES_C "*.cpp")
 FILE(GLOB FILES_H "*.h" "*.inl")
@@ -28,6 +28,15 @@ ${FILES_C}
 ${FILES_H}
 )
 
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_link_libraries(${projectName}
+	imgui
+	commonOsg
+	GL
+	glfw
+	${OPENSCENEGRAPH_LIBRARIES}
+)
+else()
 target_link_libraries(${projectName}
 	imgui
 	commonOsg
@@ -35,3 +44,4 @@ target_link_libraries(${projectName}
 	glfw3
 	${OPENSCENEGRAPH_LIBRARIES}
 )
+endif()

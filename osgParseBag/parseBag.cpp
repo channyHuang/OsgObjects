@@ -308,7 +308,7 @@ int ParseBag::readPoint(std::ifstream& ifs) {
             memset(buffer, 0, MAX_LEN);
             //ifs.read((char*)&buffer, sizeof(char) * rowStep);
             float pos[3] = { 0 }, intensity;
-            long float timestemp;
+            double timestemp;
             short ring;
             //std::strncpy((char*)&pos[0], (char*)&buffer, 4);
             ifs.read((char*)&pos[0], sizeof(float));

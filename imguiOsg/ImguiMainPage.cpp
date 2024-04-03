@@ -46,12 +46,14 @@ void ImguiMainPage::drawUi() {
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
     ImGui::SameLine();
+#ifdef WIN32
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
         if (result == NFD_OKAY) {
 
         }
     }
+#endif
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("show file model using assimp"))

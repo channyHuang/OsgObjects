@@ -43,6 +43,7 @@ void ImguiMainPage::drawUi() {
     ImGui::Begin("osg show objects");
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
+#ifdef WIN32
     ImGui::SameLine();
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
@@ -50,8 +51,10 @@ void ImguiMainPage::drawUi() {
 
         }
     }
+#endif
     if (ImGui::InputTextWithHint("path", "", cTexturePath, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
+#ifdef WIN32
     ImGui::SameLine();
     if (ImGui::Button("Open Path")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cTexturePath);
@@ -59,7 +62,7 @@ void ImguiMainPage::drawUi() {
 
         }
     }
-
+#endif
     if (ImGui::Button("Switch Scene")) {
         OsgManager::getInstance()->switchScene();
     }

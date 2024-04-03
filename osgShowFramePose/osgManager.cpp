@@ -10,7 +10,7 @@ OsgManager* OsgManager::instance = nullptr;
 
 #include "commonMath/vector2.h"
 #include "commonMath/vector3.h"
-#include "commonMath/Triangle.h"
+#include "commonMath/triangle.h"
 #include "commonGeometry/delaunay.h"
 
 class CommonPlane {

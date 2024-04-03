@@ -8,11 +8,11 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #define GLEW_STATIC
-#include <gl/glew.h>
-#include <glfw/glfw3.h>
-
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#ifdef WIN32
 #include "nativefiledialog/nfd.h"
-
+#endif
 #include "commonFunc.h"
 
 GLuint vao[1];
@@ -129,11 +129,13 @@ int main(int argc, char** argv) {
             if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
             }
             ImGui::SameLine();
+#ifdef WIN32
             if (ImGui::Button("Open File")) {
                 nfdresult_t result = NFD_OpenDialog("obj,ply,xyz", nullptr, &cFileName);
                 if (result == NFD_OKAY) {
                 }
             }
+#endif
             if (ImGui::Button("show model")) {
             }
             

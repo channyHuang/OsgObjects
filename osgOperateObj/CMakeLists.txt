@@ -4,7 +4,7 @@ set(projectName osgOperateObj)
 project(${projectName})
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(CGAL REQUIRED)
@@ -38,6 +38,18 @@ ${FILES_C}
 ${FILES_H}
 )
 
+
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_link_libraries(${projectName}
+	imgui
+	commonOsg
+	commonGeometry
+	GL
+	glfw
+	${OPENSCENEGRAPH_LIBRARIES}
+	${OpenCV_LIBS}
+)
+elseif(WIN32)
 target_link_libraries(${projectName}
 	imgui
 	commonOsg
@@ -49,3 +61,4 @@ target_link_libraries(${projectName}
 	${OPENSCENEGRAPH_LIBRARIES}
 	${OpenCV_LIBS}
 )
+endif()

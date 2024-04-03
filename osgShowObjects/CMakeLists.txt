@@ -4,7 +4,7 @@ set(projectName osgShowObjects)
 project(${projectName})
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(Assimp REQUIRED)
 
 FILE(GLOB FILES_C "*.cpp")
@@ -16,7 +16,6 @@ include_directories(${projectName}
 	${OSG_INCLUDE_DIR}
 	"./../commonClass"
 	${GLFW3_INCLUDE_DIR}
-	${GDAL_INCLUDE_DIRS}
 	${ASSIMP_INCLUDE_DIRS}
 	)
 	
@@ -30,6 +29,16 @@ ${FILES_C}
 ${FILES_H}
 )
 
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+target_link_libraries(${projectName}
+	imgui
+	commonOsg
+	GL
+	glfw
+	${OPENSCENEGRAPH_LIBRARIES}
+	${ASSIMP_LIBRARIES}
+)
+else()
 target_link_libraries(${projectName}
 	imgui
 	commonOsg
@@ -37,6 +46,6 @@ target_link_libraries(${projectName}
 	glfw3
 	nativefiledialog
 	${OPENSCENEGRAPH_LIBRARIES}
-	${GDAL_LIBRARIES}
 	${ASSIMP_LIBRARIES}
 )
+endif()

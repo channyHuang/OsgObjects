@@ -22,12 +22,14 @@ void ImguiMainPage::drawUi() {
     ImGui::Begin("flow");
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
+#ifdef WIN32
     ImGui::SameLine();
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
         if (result == NFD_OKAY) {
         }
     }
+#endif
     if (ImGui::Button("Switch Scene")) {
         OsgManager::getInstance()->switchScene();
     }

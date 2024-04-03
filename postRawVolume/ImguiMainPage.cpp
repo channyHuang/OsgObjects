@@ -42,13 +42,13 @@ void ImguiMainPage::drawUi() {
     ImGui::Begin("post raw volume");
     
     // if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
-
+#ifdef WIN32
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog("bin"/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
         if (result == NFD_OKAY) {
         }
     }
-
+#endif
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("Load raw volume of Instant-ngp"))
