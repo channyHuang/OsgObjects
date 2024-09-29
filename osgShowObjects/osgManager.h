@@ -17,41 +17,29 @@
 #include <osgDB/WriteFile>
 #include <osg/AutoTransform>
 
-class OsgManager
+#include "commonOsg/osgManagerBase.h"
+
+class OsgManager : public OsgManagerBase
 {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	~OsgManager();
-
-	void switchScene();
-	void setViewer(osgViewer::Viewer& viewer);
-	void clearPick();
-	void showPick(osg::Vec3& p);
+	virtual ~OsgManager();
 
 	void obj2osgt(const std::string& str);
-	void showModelObj(const std::string& str, const std::string& sTex, bool bUseOsgLoad = true);
-	void showModelOsgbLOD(const std::string& str, const std::string& sTex);
-	void showModelUsingAssimp(std::string sFileName, std::string sTextureName);
+	void readObjTinyobj(const std::string& str, const std::string& sTex, bool bUseOsgLoad = true);
 
-private:
+protected:
+	static OsgManager* m_pInstance;
+
+protected:
 	OsgManager();
-	
-private:
-	static OsgManager* instance;
 
-	osg::ref_ptr<osg::Group> root = nullptr;
-	osg::ref_ptr<osg::Group> sunLight = nullptr;
-	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-	osg::ref_ptr<osg::Switch> sceneSwitch;
-	osg::ref_ptr<osg::Group> rootGeomDistance = nullptr;
-	int sceneMaxIdx = 0;
-	int sceneIdx = 0;
+	osg::ref_ptr<osg::Group> m_pRootGeomDistance = nullptr;
 	std::vector<osg::Vec3> m_vPickPoints;
 };
-

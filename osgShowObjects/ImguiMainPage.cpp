@@ -12,6 +12,10 @@ GLuint textureID;
 
 #include "nativefiledialog/nfd.h"
 
+void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
+	OsgManager::getInstance()->showPick(vPos);
+}
+
 ImguiMainPage::ImguiMainPage() {
     
 }
@@ -25,8 +29,9 @@ ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHand
     cTexturePath = new char[nMaxFileNameLength];
     memset(cTexturePath, 0, nMaxFileNameLength);
 
-    picker = new PickDistanceHandler();
-    viewer.addEventHandler(picker);
+    m_pPicker = new PickHandler();
+    m_pPicker->setCallback(pickCbFunc, nullptr);
+    viewer.addEventHandler(m_pPicker);
 }
 
 ImguiMainPage::~ImguiMainPage() {
@@ -41,9 +46,14 @@ ImguiMainPage::~ImguiMainPage() {
 
 void ImguiMainPage::drawUi() {
     ImGui::Begin("osg show objects");
+    // common functions
+    if (ImGui::Button("Switch Scene")) {
+        OsgManager::getInstance()->switchScene();
+    }
+
+    // select file or folder 文件选择框
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
-#ifdef WIN32
     ImGui::SameLine();
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
@@ -51,10 +61,10 @@ void ImguiMainPage::drawUi() {
 
         }
     }
-#endif
+
     if (ImGui::InputTextWithHint("path", "", cTexturePath, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
-#ifdef WIN32
+
     ImGui::SameLine();
     if (ImGui::Button("Open Path")) {
         nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cTexturePath);
@@ -62,47 +72,46 @@ void ImguiMainPage::drawUi() {
 
         }
     }
-#endif
+    if (ImGui::Button("Reset Scene")) {
+        m_pCameraHandler->reset();
+    }
     if (ImGui::Button("Switch Scene")) {
         OsgManager::getInstance()->switchScene();
     }
-    ImGui::Checkbox("Picker valid?", &picker->valid);
+    ImGui::Checkbox("Picker valid?", &m_pPicker->m_bCheckHit);
 
-    ImGui::Checkbox("Rotate By Axis", &m_pCameraHandler->bRotateByAxis);
-    if (m_pCameraHandler->bRotateByAxis) {
-        ImGui::Text("Rotate by axis: 0-x, 1-y, 2-z");
-        ImGui::SliderInt("Axis x y z", &m_pCameraHandler->axis, 0, 3);
+    ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
+    if (m_pCameraHandler->m_bBack2WorldCenter) {
+        m_pCameraHandler->back2WorldCenter();
+        m_pCameraHandler->m_bBack2WorldCenter = false;
     }
+    ImGui::SliderFloat("step", &m_pCameraHandler->m_fStepScale, 0.01f, 3.f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 
     if (ImGui::Button("clear pick")) {
         OsgManager::getInstance()->clearPick();
     }
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
-        if (ImGui::BeginTabItem("show obj models")) // show obj models
+        if (ImGui::BeginTabItem("show models")) // show obj models
         {
-            if (ImGui::Button("show model using glsl")) {
+            if (ImGui::Button("show model using TinyObj")) {
                 sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->showModelObj(sFileName, std::string(cTexturePath), false);
+                if (sFileName.length() > 0) {
+                    OsgManager::getInstance()->readObjTinyobj(sFileName, std::string(cTexturePath), false);
+                }
             }
 
-            if (ImGui::Button("show model in osg (prefer)")) {
+            if (ImGui::Button("show model using osg")) {
                 sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->showModelObj(sFileName, std::string(cTexturePath));
+                if (sFileName.length() > 0) {
+                    OsgManager::getInstance()->readNode(sFileName);
+                }
             }
 
             if (ImGui::Button("show model osgb with Lod")) {
                 sFileName = std::string(cFileName);
                 if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->showModelOsgbLOD(sFileName, std::string(cTexturePath));
-            }
-
-            if (ImGui::Button("show model using assimp")) {
-                sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->showModelUsingAssimp(sFileName, std::string(cTexturePath));
+                OsgManager::getInstance()->readOsgbLOD(sFileName, std::string(cTexturePath));
             }
 
             ImGui::EndTabItem();
@@ -110,8 +119,8 @@ void ImguiMainPage::drawUi() {
 
         if (ImGui::BeginTabItem("Other functions")) {
             if (ImGui::Button("calc area")) {
-                float res = calcObjProjectArea(cFileName, cTexturePath);
-                std::cout << "area " << res << std::endl;
+                // float res = calcObjProjectArea(cFileName, cTexturePath);
+                // std::cout << "area " << res << std::endl;
             }
 
             ImGui::EndTabItem();
@@ -120,8 +129,9 @@ void ImguiMainPage::drawUi() {
         if (ImGui::BeginTabItem("format transform (obj 2 osgt)")) {
             if (ImGui::Button("import obj and transform")) {
                 sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->obj2osgt(sFileName);
+                if (sFileName.length() > 0) {
+                    OsgManager::getInstance()->obj2osgt(sFileName);
+                }
             }
 
             ImGui::EndTabItem();
