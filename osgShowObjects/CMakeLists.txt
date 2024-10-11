@@ -20,6 +20,17 @@ include_directories(${PROJECT_NAME}
 	${OUTER_DIR}
 )
 
+# Check C++17 support
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(COMPILER_SUPPORTS_CXX17)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+  add_definitions(-DCOMPILEDWITHC17)
+  message(STATUS "Using flag -std=c++17.")
+else()
+  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
+endif()
+
 add_subdirectory(${OUTER_DIR}/imgui imgui)
 add_subdirectory(${OUTER_DIR}/commonOsg commonOsg)
 add_subdirectory(${OUTER_DIR}/nativefiledialog nativefiledialog)
@@ -42,9 +53,13 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME}
 	GL
 	glfw
+	Threads::Threads
+	stdc++fs
 )
 else()
 target_link_libraries(${PROJECT_NAME}

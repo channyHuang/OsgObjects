@@ -66,9 +66,11 @@ osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBa
 	pGeom->setTexCoordArray(0, texcoords);
 
 	pGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertex->size()));
-	return pGeom;
+	return pGeom;	
+}
 
-    osg::ref_ptr<osg::Program> program = new osg::Program;
+void getGlslObj(osg::ref_ptr<osg::Geometry> pGeom, osgViewer::Viewer& pViewer) {
+	osg::ref_ptr<osg::Program> program = new osg::Program;
 	program->addShader(osgDB::readRefShaderFile(osg::Shader::VERTEX, sGlslPath + "/vshader_demo.glsl"));
 	program->addShader(osgDB::readRefShaderFile(osg::Shader::FRAGMENT, sGlslPath + "/fshader_demo.glsl"));
 
@@ -102,8 +104,6 @@ osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBa
 		pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_OVERALL);
 	}
 	pGeom->setVertexAttribArray(3, texcoords, osg::Array::Binding::BIND_PER_VERTEX);
-
-	
 
 	if (false) { // show wireframe
 		osg::ref_ptr<osg::Geometry> geomWireframe = new osg::Geometry(*pGeom.get(), osg::CopyOp::SHALLOW_COPY);

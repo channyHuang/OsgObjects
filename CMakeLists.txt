@@ -3,7 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.2)
 set(projectName AllOsgProj)
 project(${projectName})
 
-ADD_SUBDIRECTORY(commonClass)
 ADD_SUBDIRECTORY(imguiOsg)
 ADD_SUBDIRECTORY(imguiShader)
 ADD_SUBDIRECTORY(osgForTempTest)

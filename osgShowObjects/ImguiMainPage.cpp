@@ -114,6 +114,13 @@ void ImguiMainPage::drawUi() {
                 OsgManager::getInstance()->readOsgbLOD(sFileName, std::string(cTexturePath));
             }
 
+            if (ImGui::Button("show model in folder")) {
+                sFileName = std::string(cFileName);
+                if (sFileName.length() <= 0) sFileName = "/home/channy/Documents/datasets_recon/dolphin_wall/tex_mesh";
+                OsgManager::getInstance()->loadPlyFolder(sFileName);
+                printf("show folder %s!\n", sFileName.c_str());                
+            }
+
             ImGui::EndTabItem();
         }
 
