@@ -13,31 +13,26 @@
 #include <osg/Texture2D>
 #include <osg/PolygonMode>
 
-class OsgManager
-{
+#include "commonOsg/osgManagerBase.h"
+
+class OsgManager : public OsgManagerBase {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
 	~OsgManager();
 
-	void setViewer(osgViewer::Viewer& viewer);
-	void switchScene();
+protected:
+	static OsgManager* m_pInstance;
 
-private:
+protected:
 	OsgManager();
-	
-private:
-	static OsgManager* instance;
-	int sceneMaxIdx = 0, sceneIdx = 0;
-	osg::ref_ptr<osg::Group> root = nullptr;
-	osg::ref_ptr<osg::Group> rootWireTerrain = nullptr;
-	osg::ref_ptr<osg::Group> sunLight = nullptr;
-	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-	osg::ref_ptr<osg::Switch> sceneSwitch;
-};
 
+	osg::ref_ptr<osg::Group> m_pRootGeomDistance = nullptr;
+	std::vector<osg::Vec3> m_vPickPoints;
+	osg::ref_ptr<osg::Group> m_pMeshGroup = nullptr;
+};

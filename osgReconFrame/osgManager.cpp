@@ -1,7 +1,5 @@
 #include "osgManager.h"
 
-#include "osgPickHandler.h"
-
 #include "commonMath/vector2.h"
 #include "commonMath/vector3.h"
 #include "commonMath/plane.h"
@@ -9,31 +7,21 @@
 #include "commonMath/triangle.h"
 #include "commonGeometry/delaunay.h"
 
-#include "commonOsg/commonOsg.h"
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 
-OsgManager* OsgManager::instance = nullptr;
+OsgManager* OsgManager::m_pInstance = nullptr;
 
-OsgManager::OsgManager() {
-	root = new osg::Group;
-	root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-	root->addChild(createAxis());
-
-	sceneSwitch = new osg::Switch;
-	sceneSwitch->setAllChildrenOn();
+OsgManager::OsgManager() : OsgManagerBase() {
+	m_pRootGeomDistance = new osg::Group;
+	m_pSceneSwitcher->addChild(m_pRootGeomDistance);
 }
 
 OsgManager::~OsgManager() {
-	pviewer.release();
+	m_pRootGeomDistance.release();
 }
 
-void OsgManager::setViewer(osgViewer::Viewer& viewer) {
-	pviewer = &viewer;
-
-	pviewer->addEventHandler(new PickHandler());
-	pviewer->setSceneData(root);
-}
-
-std::vector<osg::Matrix> getPose(const std::string& sPoseName) {
+std::vector<osg::Matrix> getPoseFromFile(const std::string& sPoseName) {
 	std::vector<osg::Matrix> trans;
 	std::ifstream ifs(sPoseName);
 	while (!ifs.fail() && !ifs.eof()) {
@@ -59,8 +47,7 @@ bool samearea(Vector3 a, Vector3 b) {
 	return true;
 }
 
-osg::Matrix getDatasetPose(const std::string& sPoseName) {
-
+osg::Matrix getPoseFromDataset(const std::string& sPoseName) {
 	std::ifstream ifs(sPoseName);
 	std::string line;
 	std::getline(ifs, line);
@@ -83,8 +70,32 @@ osg::Matrix getDatasetPose(const std::string& sPoseName) {
 	return tr;
 }
 
-void OsgManager::showDataset() {
-	std::string sFilePath = "D:/dataset/thermocolorlab"; // only for test 
+osg::ref_ptr<osg::Geometry> getPointFromFile(const std::string& sPointFile) {
+	std::ifstream ifs(sPointFile);
+	std::string line;
+	osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> pVertex = new osg::Vec3Array; 
+	osg::ref_ptr<osg::Vec3Array> pColor = new osg::Vec3Array; 
+	while (!ifs.eof()) {
+		std::getline(ifs, line);
+		std::vector<std::string> data = splitString(line, ' ');
+		if (data.size() < 7) {
+			break;
+		}
+		osg::Vec3 point = {std::atof(data[0].c_str()), std::atof(data[1].c_str()), std::atof(data[2].c_str())};
+		osg::Vec3 color = {std::atof(data[4].c_str()) / 255.f, std::atof(data[5].c_str()) / 255.f, std::atof(data[6].c_str()) / 255.f};
+
+		pVertex->push_back(point);
+		pColor->push_back(color);
+	}
+	pGeom->setVertexArray(pVertex); 
+	pGeom->setColorArray(pColor, osg::Array::BIND_PER_VERTEX);
+
+	ifs.close();
+	return pGeom;
+}
+
+void OsgManager::reconFrameDataset(const std::string& sDatasetPath) {
 	int stpos = 0, endpos = 9;
 	char cIndex[10] = { 0 };
 	float degree = 20.f; // 40 degree rotation between frames
@@ -95,11 +106,27 @@ void OsgManager::showDataset() {
 
 	sprintf(cIndex, "%03d", m_nDatasetPos);
 
-	osg::ref_ptr<osg::Geometry> pGeom = createGeomUsingTinyobj((sFilePath + "/scan" + std::string(cIndex) + ".obj").c_str(), "");
+	// osg::ref_ptr<osg::Node> pInputPointNode = osgDB::readNodeFile((sDatasetPath + "/scan" + std::string(cIndex) + ".3d").c_str());
+	// osg::ref_ptr<osg::Geode> pGeode = pInputPointNode->asGeode();
+	// if (!pGeode) {
+	// 	std::cout << "not a geode" << std::endl;
+	// 	return;
+	// }
+	// osg::ref_ptr<osg::Drawable> pDrawable = pGeode->getDrawable(0);
+	// if (!pDrawable) {
+	// 	std::cout << "not a drawable" << std::endl;
+	// 	return;
+	// }
+	// osg::ref_ptr<osg::Geometry> pGeom = pDrawable->asGeometry();
+	// if (!pGeom) {
+	// 	std::cout << "not a geometry" << std::endl;
+	// 	return;
+	// }
+	osg::ref_ptr<osg::Geometry> pGeom = getPointFromFile((sDatasetPath + "/scan" + std::string(cIndex) + ".3d").c_str());
 	osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
 
-	std::string sPoseName = sFilePath + "/scan" + std::string(cIndex) + ".pose";
-	osg::Matrix matTranslate = getDatasetPose(sPoseName);
+	std::string sPoseName = sDatasetPath + "/scan" + std::string(cIndex) + ".pose";
+	osg::Matrix matTranslate = getPoseFromDataset(sPoseName);
 
 	Vector3 vProjNormal(-std::sin(degree * MathFuncs::PI / 180.f), 0, std::cos(degree * MathFuncs::PI / 180.f));
 	vProjNormal.normalize();
@@ -166,14 +193,14 @@ void OsgManager::showDataset() {
 	pTargetGeom->setColorArray(vTargetColor, osg::Array::Binding::BIND_PER_VERTEX);
 	pTargetGeom->addPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, vTargetIndices.size(), vTargetIndices.data()));
 
-	sceneSwitch->addChild(pTargetGeom);
+	m_pSceneSwitcher->addChild(pTargetGeom);
 
 	m_nDatasetPos++;
 }
 
-void OsgManager::show(const std::string& sFilePath) {
-	std::string sPoseName = sFilePath + "\\optimized_pose.txt";
-	std::vector<osg::Matrix> vMatTranslate = getPose(sPoseName);
+void OsgManager::reconFrame(const std::string& sDatasetPath) {
+	std::string sPoseName = sDatasetPath + "\\optimized_pose.txt";
+	std::vector<osg::Matrix> vMatTranslate = getPoseFromFile(sPoseName);
 
 	int stpos = 334, endpos = 430;
 	char cIndex[10] = { 0 };
@@ -186,9 +213,9 @@ void OsgManager::show(const std::string& sFilePath) {
 		sprintf(cIndex, "%d", idx);
 		osg::Vec3 vLocation = vMatTranslate[idx].getTrans();
 		Vector3 vVecLocation = Vector3(vLocation.x(), vLocation.y(), vLocation.z());
-		osg::ref_ptr<osg::Geometry> pGeom = createGeomUsingTinyobj((sFilePath + "/" + std::string(cIndex) + ".obj").c_str(), "");
+		osg::ref_ptr<osg::Geometry> pGeom = createGeomUsingTinyobj((sDatasetPath + "/" + std::string(cIndex) + ".3d").c_str(), "");
 
-		std::size_t pos = sFilePath.find_last_of('.');
+		std::size_t pos = sDatasetPath.find_last_of('.');
 
 		osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
 
@@ -283,7 +310,7 @@ void OsgManager::show(const std::string& sFilePath) {
 			pTargetGeom->setVertexArray(vTargetVertex);
 			pTargetGeom->setNormalArray(vTargetNormal, osg::Array::Binding::BIND_PER_VERTEX);
 			pTargetGeom->addPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, vTargetIndices.size(), vTargetIndices.data()));
-			root->addChild(pTargetGeom);
+			m_pRootGeomDistance->addChild(pTargetGeom);
 
 			offset += vTargetVertex->size();
 		}

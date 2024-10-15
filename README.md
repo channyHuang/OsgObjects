@@ -13,6 +13,26 @@ ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to compile vertex shader! W
 ERROR: 0:1: '' :  version '130' is not supported
 ```
 
+# osgReconFrame
+[测试数据集-20-thermocolorlab.tar](https://robotik.informatik.uni-wuerzburg.de/telematics/3dscans/)
+
+从点云中单帧重建三维网格模型。
+
+* 输入：
+    * 激光姿态.pose文件，包含两行共6个数字，第一行三个数表示激光位置，第二行三个数表示激光旋转角度（相对世界坐标系）
+    * 点云.obj文件，激光姿态.pose文件对应的点云 以thermocolorlab.tar为样例输入，包含xyz和RGB值。
+
+* 输出：
+    * 非封闭三维网格模型
+    * 渲染显示
+
+## dataset & reference
+[ASL](https://projects.asl.ethz.ch/datasets/doku.php?id=home)
+
+[3D Scans](http://kos.informatik.uni-osnabrueck.de/3Dscans/)
+
+[tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
+
 # 其它
 osg支持的具体格式不多，如读取ply时不支持同一顶点不同纹理坐标的模型、不支持纹理坐标在面元素中指定的模型等等。
 

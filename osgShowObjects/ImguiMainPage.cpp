@@ -9,7 +9,6 @@
 GLuint textureID;
 
 #include "commonOsg/commonOsg.h"
-
 #include "nativefiledialog/nfd.h"
 
 void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
@@ -74,9 +73,6 @@ void ImguiMainPage::drawUi() {
     }
     if (ImGui::Button("Reset Scene")) {
         m_pCameraHandler->reset();
-    }
-    if (ImGui::Button("Switch Scene")) {
-        OsgManager::getInstance()->switchScene();
     }
     ImGui::Checkbox("Picker valid?", &m_pPicker->m_bCheckHit);
 

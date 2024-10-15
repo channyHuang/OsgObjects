@@ -1,24 +1,33 @@
 #include "ImguiMainPage.h"
 
 #include "osgManager.h"
+#include "commonOsg/commonOsg.h"
 #include "nativefiledialog/nfd.h"
 GLuint textureID;
 
-ImguiMainPage::ImguiMainPage() {
-    
+void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
+	OsgManager::getInstance()->showPick(vPos);
 }
 
-ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer) {
+ImguiMainPage::ImguiMainPage() {}
+
+ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
     pviewer = &viewer;
-
+    m_pCameraHandler = pCameraHandler;
     OsgManager::getInstance()->setViewer(viewer);
-
     cFileName = new char[nMaxFileNameLength];
     memset(cFileName, 0, nMaxFileNameLength);
+
+    m_pPicker = new PickHandler();
+    m_pPicker->setCallback(pickCbFunc, nullptr);
+    viewer.addEventHandler(m_pPicker);
 }
 
 ImguiMainPage::~ImguiMainPage() {
     pviewer = nullptr;
+    if (cFileName != nullptr) {
+        delete[]cFileName;
+    }
 }
 
 GLuint createTextureByData(const unsigned char* data, int width, int height) {
@@ -39,24 +48,37 @@ GLuint createTextureByData(const unsigned char* data, int width, int height) {
 }
 
 void ImguiMainPage::drawUi() {
-    ImGui::Begin("imgui osg");
+    ImGui::Begin("title");
     if (ImGui::Button("Switch Scene")) {
         OsgManager::getInstance()->switchScene();
     }
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
     }
     ImGui::SameLine();
-#ifdef WIN32
     if (ImGui::Button("Open File")) {
-        nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
+        nfdresult_t result = NFD_OpenDialog("obj,ply,xyz,csv", nullptr, &cFileName);
         if (result == NFD_OKAY) {
 
         }
     }
-#endif
+    if (ImGui::Button("Reset Scene")) {
+        m_pCameraHandler->reset();
+    }
+    ImGui::Checkbox("Picker valid?", &m_pPicker->m_bCheckHit);
+    ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
+    if (m_pCameraHandler->m_bBack2WorldCenter) {
+        m_pCameraHandler->back2WorldCenter();
+        m_pCameraHandler->m_bBack2WorldCenter = false;
+    }
+    ImGui::SliderFloat("step", &m_pCameraHandler->m_fStepScale, 0.01f, 3.f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+
+    if (ImGui::Button("clear pick")) {
+        OsgManager::getInstance()->clearPick();
+    }
+
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
-        if (ImGui::BeginTabItem("show file model using assimp"))
+        if (ImGui::BeginTabItem("tab name"))
         {
             // image button
             if (ImGui::Button("generate image data")) {

@@ -5,7 +5,6 @@
 #include <osgGA/TrackballManipulator>
 
 #include "ImguiMainPage.h"
-#include "osgPickHandler.h"
 
 class ImGuiInitOperation : public osg::Operation {
 public:
@@ -30,12 +29,26 @@ int main() {
 	//viewer.setCameraManipulator(new osgGA::TrackballManipulator());
 	//viewer.addEventHandler(new CameraHandler(viewer));
 
-	auto page = new ImguiMainPage(viewer);
+	osg::ref_ptr< CameraHandler> pCameraHandler = new CameraHandler(viewer);
+	viewer.addEventHandler(pCameraHandler);
+
+	osg::Vec3 eye, up, center;
+	viewer.getCamera()->getViewMatrixAsLookAt(eye, center, up);
+	eye = osg::Vec3(1, 1, 0);
+	center = osg::Vec3(0, 0, 0);
+	up = osg::Vec3(0, 0, 1);
+	viewer.getCamera()->setViewMatrixAsLookAt(eye, center, up);
+
+	auto page = new ImguiMainPage(viewer, pCameraHandler);
 	viewer.addEventHandler(page);
 
 	//viewer.getCamera()->getGraphicsContext()->getState()->resetVertexAttributeAlias(false);
 	//viewer.getCamera()->getGraphicsContext()->getState()->setUseModelViewAndProjectionUniforms(true);
 	//viewer.getCamera()->getGraphicsContext()->getState()->setUseVertexAttributeAliasing(true);
 
-	return viewer.run();
+	while (!viewer.done()) {
+		viewer.frame();
+	}
+	return 0;
+	// return viewer.run();
 }

@@ -12,37 +12,39 @@
 #include <osgViewer/Renderer>
 #include <osg/Texture2D>
 #include <osg/PolygonMode>
+#include <osg/BindImageTexture>
+#include <osgText/Text>
+#include <osgDB/WriteFile>
+#include <osg/AutoTransform>
 
-class OsgManager
+#include "commonOsg/osgManagerBase.h"
+#include "commonOsg/commonOsg.h"
+
+class OsgManager : public OsgManagerBase
 {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	~OsgManager();
+	virtual ~OsgManager();
 
-	void setViewer(osgViewer::Viewer& viewer);
-	void show(const std::string& sFilePath);
+	void reconFrameDataset(const std::string& sDatasetPath = "/home/channy/Documents/datasets_recon/thermocolorlab");
+	void reconFrame(const std::string& sDatasetPath);
 
-	// show dataset recon frame by frame
-	void showDataset();
-private:
+protected:
+	static OsgManager* m_pInstance;
+
+protected:
 	OsgManager();
-	
+
+	osg::ref_ptr<osg::Group> m_pRootGeomDistance = nullptr;
+	std::vector<osg::Vec3> m_vPickPoints;
+	osg::ref_ptr<osg::Group> m_pMeshGroup = nullptr;
+
 private:
-	static OsgManager* instance;
-
-	osg::ref_ptr<osg::Group> root = nullptr;
-	osg::ref_ptr<osg::Group> rootWireTerrain = nullptr;
-	osg::ref_ptr<osg::Group> sunLight = nullptr;
-	osg::ref_ptr<osg::Group> rootGeomTerrain = nullptr;
-	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-	osg::ref_ptr<osg::Switch> sceneSwitch;
-
 	int m_nDatasetPos = 0;
 };
-
