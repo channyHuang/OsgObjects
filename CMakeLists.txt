@@ -6,7 +6,8 @@ project(${projectName})
 set(target 
     # imguiOsg
     # osgShowObjects
-    osgReconFrame
+    # osgReconFrame
+    imguiShader
 )
 
 ADD_SUBDIRECTORY(${target})
