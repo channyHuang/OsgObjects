@@ -13,6 +13,9 @@ ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to compile vertex shader! W
 ERROR: 0:1: '' :  version '130' is not supported
 ```
 
+# imguiShader
+使用OpenGL+glfw+imgui做界面及渲染。
+
 # osgReconFrame
 [测试数据集-20-thermocolorlab.tar](https://robotik.informatik.uni-wuerzburg.de/telematics/3dscans/)
 

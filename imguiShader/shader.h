@@ -198,12 +198,25 @@ public:
     void draw( const Eigen::Matrix< double, 4, 4 > proj_mat, const Eigen::Matrix< double, 4, 4 > pose_mat, GLenum eMode = GL_POINTS) {
         int nCount = m_vPoints.size();
         if (nCount <= 0) return;
-        if (m_bInitBuffer == false) return;
+        if (m_bInitBuffer == false) {
+            init_data_buffer();
+            if (m_bInitBuffer == false) {
+                std::cout << __LINE__ << " init failed " << std::endl;
+                return;
+            }
+        }
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
 
         glm::mat4 projection_mul_view = eigen2glm(proj_mat) * eigen2glm(pose_mat);
+        projection_mul_view[0][0] = 2.18341;
+        projection_mul_view[1][1] = 1.9685;
+        projection_mul_view[2][2] = -1.00013;
+        projection_mul_view[2][3] = -1;
+        projection_mul_view[3][2] = 19.8027;
+        projection_mul_view[3][3] = 20;
+
         use();
         setUniformFloat("pointAlpha", 1.0);
         setUniformFloat("pointSize", 10);
@@ -232,10 +245,11 @@ public:
             std::getline(ifs, sLine);
             std::vector<std::string> data = splitString(sLine, ' ');
             if (data.size() < 7) continue;
-            Point pt = Point(std::atof(data[0].c_str()), std::atof(data[1].c_str()), std::atof(data[2].c_str()), (unsigned char)std::atoi(data[4].c_str()), (unsigned char)std::atoi(data[5].c_str()), (unsigned char)std::atoi(data[6].c_str()));
+            Point pt = Point(std::atof(data[0].c_str()) * 100, std::atof(data[1].c_str()) * 100, std::atof(data[2].c_str()) * 100, (unsigned char)std::atoi(data[4].c_str()), (unsigned char)std::atoi(data[5].c_str()), (unsigned char)std::atoi(data[6].c_str()));
             m_vPoints.push_back(pt);
         }
         ifs.close();
+        std::cout << __LINE__ << " " << m_vPoints.size() << std::endl;
     }
 
 public:

@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
                     if (ImGui::Button("show or hide points")) {
                         Eigen::Matrix< double, 4, 4 > proj_mat = Eigen::Matrix< double, 4, 4 >::Identity();
                         Eigen::Matrix< double, 4, 4 > pose_mat = Eigen::Matrix< double, 4, 4 >::Identity();
-                        g_pt_shader->loadPoints("/home/channy/Documents/datasets_recon/thermocolorlab/scan000.3d");
+                        g_pt_shader->loadPoints("../imguiShader/samplePoints.3d");
                         g_pt_shader->draw(proj_mat, pose_mat);
                     }
                     ImGui::SeparatorText("draw mesh facet or wireframe");
