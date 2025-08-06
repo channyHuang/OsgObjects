@@ -75,6 +75,11 @@ void ImguiMainPage::drawUi() {
         m_pCameraHandler->reset();
     }
     ImGui::Checkbox("Picker valid?", &m_pPicker->m_bCheckHit);
+    if (m_pPicker->m_bCheckHit) {
+        ImGui::RadioButton("Length", &OsgManager::getInstance()->m_nClickType, 0);
+        ImGui::RadioButton("Height", &OsgManager::getInstance()->m_nClickType, 1);
+        ImGui::RadioButton("Area", &OsgManager::getInstance()->m_nClickType, 2);
+    }
 
     ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
     if (m_pCameraHandler->m_bBack2WorldCenter) {

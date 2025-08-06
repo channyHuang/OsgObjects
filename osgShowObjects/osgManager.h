@@ -35,13 +35,13 @@ public:
 	void readObjTinyobj(const std::string& str, const std::string& sTex, bool bUseOsgLoad = true);
 	void loadPlyFolder(const std::string &sFolder);
 
+	// virtual void showPick(const osg::Vec3& vPos);
+
 protected:
 	static OsgManager* m_pInstance;
 
 protected:
 	OsgManager();
 
-	osg::ref_ptr<osg::Group> m_pRootGeomDistance = nullptr;
-	std::vector<osg::Vec3> m_vPickPoints;
 	osg::ref_ptr<osg::Group> m_pMeshGroup = nullptr;
 };

@@ -12,6 +12,7 @@
 #include <osgViewer/Renderer>
 #include <osg/Texture2D>
 #include <osg/PolygonMode>
+
 class OsgManager
 {
 public:

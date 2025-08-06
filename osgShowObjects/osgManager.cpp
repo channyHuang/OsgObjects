@@ -83,3 +83,28 @@ void OsgManager::loadPlyFolder(const std::string &sFolder) {
 
 	m_pSceneSwitcher->addChild(m_pMeshGroup);
 }
+
+float calcAreas() {
+	return 0.0f;
+}
+
+// void OsgManager::showPick(const osg::Vec3& vPos) {
+// 	m_vPickPoints.push_back(vPos);
+
+// 	osg::ref_ptr<osg::Geometry> pGeom = createPlanet(.02f, osg::Vec4(1, 0, 0, 0), vPos);
+// 	m_pRootGeomDistance->addChild(pGeom);
+	
+// 	if ((m_vPickPoints.size() % 5) != 1) {
+// 		osg::ref_ptr<osg::Geometry> pGeomLine = new osg::Geometry;
+// 		osg::ref_ptr<osg::Vec3Array> pVecVertex = new osg::Vec3Array();
+// 		pVecVertex->push_back(m_vPickPoints[m_vPickPoints.size() - 1]);
+// 		pVecVertex->push_back(m_vPickPoints[m_vPickPoints.size() - 2]);
+// 		pGeomLine->setVertexArray(pVecVertex);
+// 		pGeomLine->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES, 0, pVecVertex->size()));
+
+// 		m_pRootGeomDistance->addChild(pGeomLine);
+// 	}
+// 	if ((m_vPickPoints.size() % 5) == 0) {
+// 		m_pRootGeomDistance->addChild(createText(vPos + osg::Vec3(-.5f, -.5f, -.5f), 25, std::to_string(1983 * 2012) + " cm^2"));
+// 	}
+// }

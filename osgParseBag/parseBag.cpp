@@ -1,6 +1,7 @@
 #include "parseBag.h"
 
 #include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/imgproc/imgproc.hpp>
 
 ParseBag* ParseBag::instance = nullptr;
 
@@ -228,11 +229,11 @@ int ParseBag::readImage(std::ifstream& ifs) {
         imgdata.push_back(buffer[i]);
     }
 
-    //cv::Mat image = cv::imdecode(imgdata, CV_LOAD_IMAGE_COLOR);
-    //if (image.data != nullptr) {
+    // cv::Mat image = cv::imdecode(imgdata, cv::IMREAD_COLOR);
+    // if (image.data != nullptr) {
     //    cv::imshow("win", image);
-    //    cv::waitKey(0);
-    //}
+    //    cv::waitKey(1);
+    // }
 
     return datalen + 4;
 }

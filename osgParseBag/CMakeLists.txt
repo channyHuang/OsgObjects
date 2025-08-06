@@ -12,12 +12,19 @@ FILE(GLOB FILES_H "*.h" "*.inl")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
+set(OUTER_DIR ${CMAKE_SOURCE_DIR}/../commonClass)
+
 include_directories(${projectName}
 	${OSG_INCLUDE_DIR}
-	"./../commonClass"
 	${GLFW3_INCLUDE_DIR}
 	${OpenCV_INCLUDE_DIRS}
+
+	${OUTER_DIR}
 	)
+
+add_subdirectory(${OUTER_DIR}/imgui imgui)
+add_subdirectory(${OUTER_DIR}/commonOsg commonOsg)
+add_subdirectory(${OUTER_DIR}/nativefiledialog nativefiledialog)
 
 link_directories(${projectName}
 	${GLFW3_LIBRARY_DIR}

@@ -69,7 +69,7 @@ osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBa
 	return pGeom;	
 }
 
-void getGlslObj(osg::ref_ptr<osg::Geometry> pGeom, osgViewer::Viewer& pViewer) {
+void getGlslObj(osg::ref_ptr<osg::Geometry> pGeom, osgViewer::Viewer* pViewer) {
 	osg::ref_ptr<osg::Program> program = new osg::Program;
 	program->addShader(osgDB::readRefShaderFile(osg::Shader::VERTEX, sGlslPath + "/vshader_demo.glsl"));
 	program->addShader(osgDB::readRefShaderFile(osg::Shader::FRAGMENT, sGlslPath + "/fshader_demo.glsl"));
@@ -95,19 +95,19 @@ void getGlslObj(osg::ref_ptr<osg::Geometry> pGeom, osgViewer::Viewer& pViewer) {
 	program->addBindAttribLocation("inormal", 2);
 	program->addBindAttribLocation("itexcoord", 3);
 
-	pGeom->setVertexAttribArray(1, vertex, osg::Array::Binding::BIND_PER_VERTEX);
-	if (normal->size() > 0) {
-		pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_PER_VERTEX);
-	}
-	else {
-		normal->push_back(osg::Vec3(0, 1, 0));
-		pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_OVERALL);
-	}
-	pGeom->setVertexAttribArray(3, texcoords, osg::Array::Binding::BIND_PER_VERTEX);
+	// pGeom->setVertexAttribArray(1, vertex, osg::Array::Binding::BIND_PER_VERTEX);
+	// if (normal->size() > 0) {
+	// 	pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_PER_VERTEX);
+	// }
+	// else {
+	// 	normal->push_back(osg::Vec3(0, 1, 0));
+	// 	pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_OVERALL);
+	// }
+	// pGeom->setVertexAttribArray(3, texcoords, osg::Array::Binding::BIND_PER_VERTEX);
 
-	if (false) { // show wireframe
-		osg::ref_ptr<osg::Geometry> geomWireframe = new osg::Geometry(*pGeom.get(), osg::CopyOp::SHALLOW_COPY);
-		setWireFrame(geomWireframe->getOrCreateStateSet(), ShowType::SHOW_WIREFRAME);
-	}
+	// if (false) { // show wireframe
+	// 	osg::ref_ptr<osg::Geometry> geomWireframe = new osg::Geometry(*pGeom.get(), osg::CopyOp::SHALLOW_COPY);
+	// 	setWireFrame(geomWireframe->getOrCreateStateSet(), ShowType::SHOW_WIREFRAME);
+	// }
 	pGeom->dirtyGLObjects();
 }
