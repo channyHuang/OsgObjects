@@ -16,6 +16,7 @@
 #include <osgText/Text>
 #include <osgDB/WriteFile>
 #include <osg/AutoTransform>
+#include <osgDB/FileUtils>
 
 #include "commonOsg/osgManagerBase.h"
 
@@ -32,10 +33,18 @@ public:
 	virtual ~OsgManager();
 
 	void obj2osgt(const std::string& str);
+	// use tinyobj library to read obj file
 	void readObjTinyobj(const std::string& str, const std::string& sTex, bool bUseOsgLoad = true);
 	void loadPlyFolder(const std::string &sFolder);
+	// use OSG read file
+	void readNode(const std::string& sNodeName);
+	// use OSG read folder
+	void readOsgbLOD(const std::string& sFolder);
 
 	// virtual void showPick(const osg::Vec3& vPos);
+
+public:
+	std::string m_sLogs = "";
 
 protected:
 	static OsgManager* m_pInstance;

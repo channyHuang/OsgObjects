@@ -23,7 +23,7 @@ private:
     char* cTexturePath = "./";
     osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
     osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
-    std::string sFileName = "/home/channy/Documents/thirdlibs/3D-Mesh-Decimation/objs/wheel.obj";
+    std::string sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply";
     const int nMaxFileNameLength = 128;
 
     PickHandler* m_pPicker = nullptr;

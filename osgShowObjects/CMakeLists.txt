@@ -10,7 +10,7 @@ FILE(GLOB FILES_H "*.h" "*.inl")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-set(OUTER_DIR ${CMAKE_SOURCE_DIR}/../commonClass)
+set(OUTER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../commonClass)
 
 include_directories(${PROJECT_NAME}
 	${OSG_INCLUDE_DIR}
@@ -56,6 +56,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME}
+	imgui
 	GL
 	glfw
 	Threads::Threads

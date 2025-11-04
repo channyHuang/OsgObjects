@@ -2,7 +2,7 @@
 
 #include "commonOsg/tiny_obj_loader.h"
 
-const std::string sGlslPath = "/home/channy/Documents/projects/commonClass/glsl";
+const std::string sGlslPath = "../../commonClass/glsl";
 
 osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBasePath, osgViewer::Viewer* pViewer = nullptr) {
     tinyobj::attrib_t attrib;

@@ -95,6 +95,8 @@ void ImguiMainPage::drawUi() {
     {
         if (ImGui::BeginTabItem("show models")) // show obj models
         {
+            ImGui::Text(OsgManager::getInstance()->m_sLogs.c_str());
+
             if (ImGui::Button("show model using TinyObj")) {
                 sFileName = std::string(cFileName);
                 if (sFileName.length() > 0) {
@@ -104,6 +106,7 @@ void ImguiMainPage::drawUi() {
 
             if (ImGui::Button("show model using osg")) {
                 sFileName = std::string(cFileName);
+                if (sFileName.length() <= 0) sFileName = "../data/tiles/Data/Tile_+000_+000/Tile_+000_+000.osgb";
                 if (sFileName.length() > 0) {
                     OsgManager::getInstance()->readNode(sFileName);
                 }
@@ -111,13 +114,13 @@ void ImguiMainPage::drawUi() {
 
             if (ImGui::Button("show model osgb with Lod")) {
                 sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "D:/dataset/r3live-lab-res/sub_mesh.obj";
-                OsgManager::getInstance()->readOsgbLOD(sFileName, std::string(cTexturePath));
+                if (sFileName.length() <= 0) sFileName = "../data/tiles/Data/Tile_+000_+000";
+                OsgManager::getInstance()->readOsgbLOD(sFileName);
             }
 
             if (ImGui::Button("show model in folder")) {
                 sFileName = std::string(cFileName);
-                if (sFileName.length() <= 0) sFileName = "/home/channy/Documents/datasets_recon/dolphin_wall/tex_mesh";
+                if (sFileName.length() <= 0) sFileName = "../data/ply_ext";
                 OsgManager::getInstance()->loadPlyFolder(sFileName);
                 printf("show folder %s!\n", sFileName.c_str());                
             }

@@ -108,3 +108,56 @@ float calcAreas() {
 // 		m_pRootGeomDistance->addChild(createText(vPos + osg::Vec3(-.5f, -.5f, -.5f), 25, std::to_string(1983 * 2012) + " cm^2"));
 // 	}
 // }
+
+void OsgManager::readNode(const std::string& sNodeName) {
+	m_sLogs.clear();
+	osg::ref_ptr<osg::Node> pMeshNode = osgDB::readNodeFile(sNodeName);
+	osg::ref_ptr<osg::Geode> pMeshGeode = pMeshNode->asGeode();
+	if (pMeshGeode) {
+		m_sLogs += std::string(pMeshGeode->getName().c_str()) ;
+		m_sLogs += std::to_string( pMeshGeode->getNumChildren() );
+		if (0) {
+			osg::ref_ptr<osg::Drawable> pMeshDrawable = pMeshGeode->getDrawable(0);
+			if (pMeshDrawable) {
+			
+				osg::ref_ptr<osg::Geometry> pMeshGeometry = pMeshDrawable->asGeometry();
+				if (pMeshGeometry && pMeshGeometry->getNumPrimitiveSets() > 0) {
+					m_pMeshGroup->addChild(pMeshNode);
+				}
+			}
+		}
+	} else {
+		m_sLogs += "not geode";
+	}
+	m_pSceneSwitcher->addChild(pMeshNode);
+}
+
+void OsgManager::readOsgbLOD(const std::string& sFolder) {
+    // Get list of tile directories
+    osgDB::DirectoryContents dirs = osgDB::getDirectoryContents(sFolder);
+    
+    for (const auto& dir : dirs) {
+        if (dir == "." || dir == "..") continue;
+        std::string tileDirPath = sFolder + "/" + dir;
+        
+        // Check if it's a directory (Tile_+000_+000, etc.)
+        if (osgDB::fileType(tileDirPath) == osgDB::DIRECTORY) {
+            
+            // Read all .osgb files in this tile directory
+            osgDB::DirectoryContents files = osgDB::getDirectoryContents(tileDirPath);
+            
+            for (const auto& file : files) {
+                if (file.find(".osgb") != std::string::npos) {
+                    std::string filePath = tileDirPath + "/" + file;
+                    osg::ref_ptr<osg::Node> pNode = osgDB::readNodeFile(filePath);
+                    
+                    if (pNode.valid()) {
+                        m_pMeshGroup->addChild(pNode);
+                    }
+                }
+            }
+        }
+    }
+    
+    m_pSceneSwitcher->addChild(m_pMeshGroup);
+}
