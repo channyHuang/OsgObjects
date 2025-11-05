@@ -1,24 +1,21 @@
 #pragma once
 
 #include <unordered_map>
-
-#include "commonOsg/commonOsg.h"
-
 #include <mutex>
 
-class OsgManager
-{
+#include "commonOsg/osgManagerBase.h"
+#include "commonOsg/commonOsg.h"
+
+class OsgManager: public OsgManagerBase {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	~OsgManager();
-
-	void setViewer(osgViewer::Viewer& viewer);
+	virtual ~OsgManager();
 
 	void calcObjNormal(const std::string& sPath, std::string sOutPath = "");
 	void combineAllPointCloudObj(const std::string& sPath, const std::string& sOutPath, const std::string& sOutName);
@@ -33,12 +30,13 @@ public:
 	bool bReload = true;
 	bool valid = false;
 	float progress = 0.f;
-private:
+
+protected:
 	OsgManager();
 	void init();
 
 private:
-	static OsgManager* instance;
+	static OsgManager* m_pInstance;
 
 	osg::ref_ptr<osg::Group> root = nullptr;
 	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;

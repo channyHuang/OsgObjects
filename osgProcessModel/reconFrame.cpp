@@ -1,4 +1,4 @@
-#include "ReconFrame.h"
+#include "reconFrame.h"
 
 #include "commonMath/vector2.h"
 #include "commonMath/vector3.h"
@@ -6,9 +6,6 @@
 #include "commonMath/funcs.h"
 #include "commonMath/triangle.h"
 #include "commonGeometry/delaunay.h"
-
-
-
 
 ReconFrame* ReconFrame::instance = nullptr;
 

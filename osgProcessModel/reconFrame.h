@@ -1,6 +1,8 @@
 #ifndef RECONFRAME_H
 #define RECONFRAME_H
 
+#include <iostream>
+
 #include "commonOsg/commonOsg.h"
 
 class ReconFrame {

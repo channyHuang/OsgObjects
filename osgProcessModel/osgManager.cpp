@@ -1,7 +1,5 @@
 #include "osgManager.h"
 
-#include "osgPickHandler.h"
-
 #include <filesystem>
 
 #include <vcg/complex/allocate.h>
@@ -12,33 +10,15 @@
 #include <wrap/ply/plylib.cpp>
 using namespace vcg;
 
-OsgManager* OsgManager::instance = nullptr;
+OsgManager* OsgManager::m_pInstance = nullptr;
 
-OsgManager::OsgManager() {
-	root = new osg::Group;
-	root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+OsgManager::OsgManager()  : OsgManagerBase() {}
 
-	sceneSwitch = new osg::Switch;
-}
-
-OsgManager::~OsgManager() {
-	clear();
-	pviewer.release();
-}
-
-void OsgManager::setViewer(osgViewer::Viewer& viewer) {
-	pviewer = &viewer;
-	init();
-	
-	pviewer->getCamera()->getViewMatrixAsLookAt(eye, center, up);
-	eye = osg::Vec3(0, 0, 1);
-	pviewer->getCamera()->setViewMatrixAsLookAt(eye, center, up);
-}
+OsgManager::~OsgManager() {}
 
 void OsgManager::init() {
 	clear();
-	pviewer->addEventHandler(new PickHandler());
-	
+
 	root->addChild(createSkyBox());
 	root->addChild(createAxis());
 	root->addChild(sceneSwitch);
@@ -47,20 +27,8 @@ void OsgManager::init() {
 }
 
 void OsgManager::clear() {
-	sceneSwitch->removeChildren(0, sceneSwitch->getNumChildren());
+	m_pSceneSwitcher->removeChildren(0, m_pSceneSwitcher->getNumChildren());
 	bs = osg::BoundingSphere(osg::Vec3(0.f, 0.f, 0.f), 1.f);
-}
-
-
-void OsgManager::switchScene() {
-	sceneMaxIdx = sceneSwitch->getNumChildren();
-	if (sceneIdx >= sceneMaxIdx) {
-		sceneSwitch->setAllChildrenOn();
-		sceneIdx = 0;
-	} else {
-		sceneSwitch->setSingleChildOn(sceneIdx);
-		sceneIdx++;
-	}
 }
 
 class MyEdge;
@@ -80,9 +48,6 @@ typedef typename MyMesh::VertexType::CoordType   Point3x;
 #include <string>
 
 void OsgManager::calcObjNormal(const std::string& sPath, std::string sOutPath) {
-	//std::string sPath = "E:/pythonProjects/puma-lidar-modify/data/mapall/ply/sequences/00/origin/";
-	//std::string sPath = "D:/dataset/lab/lab_level_pcd/mapall_frame/";
-	//std::string sOutPath = "E:/pythonProjects/puma-lidar-modify/data/mapall/ply/sequences/00/velodyne/";
 	MyMesh vcgMesh;
 	for (auto& fileName : std::filesystem::directory_iterator(sPath)) {
 		if (fileName.is_directory()) continue;
