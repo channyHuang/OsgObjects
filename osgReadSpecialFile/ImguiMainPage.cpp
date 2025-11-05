@@ -4,6 +4,7 @@
 #include "nativefiledialog/nfd.h"
 GLuint textureID;
 
+#ifdef WiN32
 #include <windows.h>
 
 std::wstring wstr(std::string temp) {
@@ -22,33 +23,46 @@ std::wstring utf8_to_utf16(const std::string& utf8) {
     }
     return utf16;
 }
+#endif
+
+void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
+	OsgManager::getInstance()->showPick(vPos);
+}
 
 ImguiMainPage::ImguiMainPage() {
+    
+}
+
+ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
+    pviewer = &viewer;
+    m_pCameraHandler = pCameraHandler;
+    OsgManager::getInstance()->setViewer(viewer);
+
+    m_pPicker = new PickHandler();
+    m_pPicker->setCallback(pickCbFunc, nullptr);
+    viewer.addEventHandler(m_pPicker);
+
     cFileName = new char[nMaxFileNameLength];
     memset(cFileName, 0, nMaxFileNameLength);
 }
 
-ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer) {
-    pviewer = &viewer;
-
-    OsgManager::getInstance()->setViewer(viewer);
-}
-
 ImguiMainPage::~ImguiMainPage() {
     pviewer = nullptr;
+    if (cFileName != nullptr) {
+        delete[]cFileName;
+    }
 }
 
 void ImguiMainPage::drawUi() {
     ImGui::Begin("post raw volume");
     
-    // if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
-#ifdef WIN32
+    if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
     if (ImGui::Button("Open File")) {
         nfdresult_t result = NFD_OpenDialog("bin"/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
         if (result == NFD_OKAY) {
         }
     }
-#endif
+
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("Load raw volume of Instant-ngp"))
@@ -70,6 +84,7 @@ void ImguiMainPage::drawUi() {
 }
 
 void ImguiMainPage::load(std::string sFile) {
+#ifdef WIN32
     uint32_t d = 256, h = 256, w = 256;
     std::ofstream ofs("output.obj");
 
@@ -96,5 +111,6 @@ void ImguiMainPage::load(std::string sFile) {
 
     fclose(fin);
     ofs.close();
+#endif
     std::cout << "done " << std::endl;
 }
