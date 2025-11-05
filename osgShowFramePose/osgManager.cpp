@@ -1,10 +1,6 @@
 #include "osgManager.h"
 
-#include "osgPickHandler.h"
-
 #include "commonOsg/commonOsg.h"
-
-OsgManager* OsgManager::instance = nullptr;
 
 #include <unordered_map>
 
@@ -12,6 +8,8 @@ OsgManager* OsgManager::instance = nullptr;
 #include "commonMath/vector3.h"
 #include "commonMath/triangle.h"
 #include "commonGeometry/delaunay.h"
+
+OsgManager* OsgManager::m_pInstance = nullptr;
 
 class CommonPlane {
 public:
@@ -66,21 +64,13 @@ osg::ref_ptr<osg::Geode> createCamera(float scale = 1.f) {
 	return geode;
 }
 
-OsgManager::OsgManager() {
-	root = new osg::Group;
-	root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::OVERRIDE);
-	root->addChild(createAxis(3.f));
+OsgManager::OsgManager() : OsgManagerBase() {
+	m_pMeshGroup = new osg::Group;
+	m_pSceneSwitcher->addChild(m_pMeshGroup);
 }
 
 OsgManager::~OsgManager() {
-	pviewer.release();
-}
-
-void OsgManager::setViewer(osgViewer::Viewer& viewer) {
-	pviewer = &viewer;
-
-	pviewer->addEventHandler(new PickHandler());
-	pviewer->setSceneData(root);
+	m_pMeshGroup.release();
 }
 
 void OsgManager::showCamera(std::string sPath, std::string sImageFile, bool selected) {
@@ -132,7 +122,7 @@ void OsgManager::showCamera(std::string sPath, std::string sImageFile, bool sele
 			pTrans->addChild(createAxis(0.5f));
 			pTrans->addChild(createCamera());
 
-			root->addChild(pTrans);
+			m_pMeshGroup->addChild(pTrans);
 		}
 	}
 }
@@ -172,7 +162,7 @@ void OsgManager::showGrid(osg::Vec3f center, float side) {
 	colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	geom->setColorArray(colors, osg::Array::BIND_OVERALL);
 
-	root->addChild(geom);
+	m_pMeshGroup->addChild(geom);
 }
 
 void OsgManager::show2Camera() {
@@ -185,7 +175,7 @@ void OsgManager::show2Camera() {
 	pTrans->addChild(createAxis());
 	pTrans->addChild(createCamera());
 
-	root->addChild(pTrans);
+	m_pMeshGroup->addChild(pTrans);
 }
 
 class ImageSt {
@@ -351,7 +341,7 @@ void OsgManager::showPointAndCamera()
 	std::string sFile = "colmap_text_01";
 	showCamera(sPath, sFile);
 	osg::ref_ptr<osg::Geometry> geom = loadPoint3dAsGeom(sPath, sFile);
-	root->addChild(geom);
+	m_pMeshGroup->addChild(geom);
 }
 
 bool OsgManager::combinePose(osg::Matrix &combMat, std::string sPath, std::string sFile1, std::string sFile2) {
@@ -389,7 +379,7 @@ bool OsgManager::combinePose(osg::Matrix &combMat, std::string sPath, std::strin
 			pTrans->setMatrix(itr->second.trans);
 			pTrans->addChild(createAxis(0.1f));
 			pTrans->addChild(createCamera(0.2f));
-			root->addChild(pTrans);
+			m_pMeshGroup->addChild(pTrans);
 		}
 		for (auto itr = images1.begin(); itr != images1.end(); itr++) {
 			osg::ref_ptr<osg::MatrixTransform> pTrans = new osg::MatrixTransform;
@@ -398,11 +388,11 @@ bool OsgManager::combinePose(osg::Matrix &combMat, std::string sPath, std::strin
 			pTrans->setMatrix(combineMat);
 			pTrans->addChild(createAxis(0.1f));
 			pTrans->addChild(createCamera(0.2f));
-			root->addChild(pTrans);
+			m_pMeshGroup->addChild(pTrans);
 		}
 	}
-	root->addChild(loadPoint3dAsGeom(sPath, sFile1));
-	root->addChild(loadPoint3dAsGeom(sPath, sFile2, combMat));
+	m_pMeshGroup->addChild(loadPoint3dAsGeom(sPath, sFile1));
+	m_pMeshGroup->addChild(loadPoint3dAsGeom(sPath, sFile2, combMat));
 
 	return canCombine;
 }
@@ -667,7 +657,7 @@ void OsgManager::showFrame() {
 				pTargetGeom->setVertexAttribArray(1, vTargetVertex, osg::Array::Binding::BIND_PER_VERTEX);
 				pTargetGeom->setVertexAttribArray(2, vTargetUv, osg::Array::Binding::BIND_PER_VERTEX);
 
-				root->addChild(pTargetGeom);
+				m_pMeshGroup->addChild(pTargetGeom);
 			}
 			lineIdx += 2;
 

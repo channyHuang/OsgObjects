@@ -14,19 +14,20 @@
 #include <osg/PolygonMode>
 #include <osg/MatrixTransform>
 
-class OsgManager
+#include "commonOsg/osgManagerBase.h"
+
+class OsgManager : public OsgManagerBase
 {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	~OsgManager();
+	virtual ~OsgManager();
 
-	void setViewer(osgViewer::Viewer& viewer);
 	//void shader(osg::ref_ptr<osg::Geometry> pGeom, std::string sImgName);
 
 	void show2Camera();
@@ -40,18 +41,13 @@ public:
 	
 	void showGrid(osg::Vec3f center = osg::Vec3f(0, 0, 0), float side = 10.f);
 	void showFrame();
-	
-private:
-	OsgManager();
-	
-private:
-	static OsgManager* instance;
 
-	osg::ref_ptr<osg::Group> root = nullptr;
-	osg::ref_ptr<osg::Group> rootWireTerrain = nullptr;
-	osg::ref_ptr<osg::Group> sunLight = nullptr;
-	osg::ref_ptr<osg::Group> rootGeomTerrain = nullptr;
-	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-	osg::ref_ptr<osg::Switch> sceneSwitch;
+protected:
+	static OsgManager* m_pInstance;
+
+protected:
+	OsgManager();
+
+	osg::ref_ptr<osg::Group> m_pMeshGroup = nullptr;
 };
 
