@@ -11,31 +11,32 @@ void generateCubeVertex(osg::ref_ptr<osg::Vec3Array> &pVertices) {
         pVertices->clear();
     }
     pVertices->push_back(osg::Vec3( 0, 0, 0));
-    pVertices->push_back(osg::Vec3( 1, 0, 0));
-    pVertices->push_back(osg::Vec3( 1, 1, 0));
     pVertices->push_back(osg::Vec3( 0, 1, 0));
+    pVertices->push_back(osg::Vec3( 1, 1, 0));
+    pVertices->push_back(osg::Vec3( 1, 0, 0));
 
-    pVertices->push_back(osg::Vec3( 0, 1, 1));
-    pVertices->push_back(osg::Vec3( 1, 1, 1));
-    pVertices->push_back(osg::Vec3( 1, 0, 1));
     pVertices->push_back(osg::Vec3( 0, 0, 1));
+    pVertices->push_back(osg::Vec3( 1, 0, 1));
+    pVertices->push_back(osg::Vec3( 1, 1, 1));
+    pVertices->push_back(osg::Vec3( 0, 1, 1));
 }
 
-void generateCubeFace(osg::ref_ptr<osg::DrawElementsUInt> &pTriangles) {
-    std::vector<unsigned int> vIndex = {0, 1, 2, 0, 2, 3,
-                                0, 3, 4, 0, 4, 7,
-                                0, 7, 6, 0, 6, 1,
-                                5, 6, 7, 5, 7, 4,
-                                5, 4, 3, 5, 3, 2,
-                                5, 2, 1, 5, 1, 6
+void generateCubeFace(osg::ref_ptr<osg::DrawElementsUInt> &pTriangles, size_t nStart = 0, size_t nEnd = 36) {
+    std::vector<unsigned int> vIndex = {0, 1, 2, 0, 2, 3, //rg
+                                0, 3, 5, 0, 5, 4, // rb
+                                0, 4, 7, 0, 7, 1, // gb
+                                6, 7, 4, 6, 4, 5, 
+                                6, 2, 1, 6, 1, 7,
+                                6, 5, 3, 6, 3, 2
                             };
+
     assert(vIndex.size() == 36);
     if (!pTriangles.valid()) {
         pTriangles = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
     } else {
         pTriangles->clear();
     }
-    for (size_t i = 0; i < vIndex.size(); ++i) {
+    for (size_t i = nStart; i < std::min(nEnd, vIndex.size()); ++i) {
         pTriangles->push_back(vIndex[i]);
     }
 }
@@ -59,19 +60,19 @@ void generateCubeTexcoord(osg::ref_ptr<osg::Vec2Array> &pTexcoord) {
 }
 
 osg::Texture2D* generateTexture(const std::string &sTextureFile) {
-    osg::ref_ptr<osg::Image> image;
-    if (!sTextureFile.empty() && (image = osgDB::readRefImageFile(sTextureFile)) != nullptr) {
-        osg::Texture2D *texture = new osg::Texture2D;
-        texture->setImage(image.get());
+    osg::ref_ptr<osg::Image> pImage;
+    if (!sTextureFile.empty() && (pImage = osgDB::readRefImageFile(sTextureFile)) != nullptr) {
+        osg::Texture2D *pTexture = new osg::Texture2D;
+        pTexture->setImage(pImage.get());
 
-        texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-        texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+        pTexture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
+        pTexture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
 
-        texture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-        texture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-        texture->setResizeNonPowerOfTwoHint(false);
+        pTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+        pTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+        pTexture->setResizeNonPowerOfTwoHint(false);
 
-        return texture;
+        return pTexture;
     } 
     return nullptr;
 }
@@ -85,45 +86,53 @@ osg::Material* generateMaterial() {
     return material.release();
 }
 
-osg::Node* HGVertex::originBox() {
+osg::Node* HGVertex::showBoxWithTexture() {
     // cub verteices
-    generateCubeVertex(_vertices);
-    generateCubeFace(_triangles);
-    generateCubeTexcoord(_texcoord);
+    generateCubeVertex(m_pVertices);
+    generateCubeFace(m_pTriangles);
+    generateCubeTexcoord(m_pTexcoords);
     
     //geom
-    osg::Geometry* geom  =  new osg::Geometry;
-    geom->setVertexArray(_vertices.get());
-    if (_triangles.valid() && _triangles->size() > 0) {
-        geom->addPrimitiveSet(_triangles.get());
+    osg::Geometry* pGeom  =  new osg::Geometry;
+    pGeom->setVertexArray(m_pVertices.get());
+    if (m_pTriangles.valid() && m_pTriangles->size() > 0) {
+        pGeom->addPrimitiveSet(m_pTriangles.get());
     }
-    if (_texcoord.valid()) {
-        geom->setTexCoordArray(0, _texcoord.get());
+    if (m_pTexcoords.valid()) {
+        pGeom->setTexCoordArray(0, m_pTexcoords.get());
     }
 
-    // texture
-    std::vector<std::string> textureFiles = {"../data/texture/Marble.bmp", "../data/texture/Concrete.bmp"};
+    osg::ref_ptr<osg::UIntArray> texCoordIndices = new osg::UIntArray;
+    for (size_t i = 0; i < m_pTexcoords->size(); ++i) {
+        texCoordIndices->push_back(i);
+    }
 
-    // materials
-    auto pMaterial = generateMaterial();
-    auto pTexture = generateTexture(textureFiles[0]);
-
-    osg::StateSet *stateset = geom->getOrCreateStateSet();
-    stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-    stateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+    osg::StateSet *pStateset = pGeom->getOrCreateStateSet();
+    pStateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    pStateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 
     // light
-    stateset->setMode(GL_LIGHT0, osg::StateAttribute::ON);
+    pStateset->setMode(GL_LIGHT0, osg::StateAttribute::ON);
 
-    if (pTexture != nullptr)
-        stateset->setTextureAttributeAndModes(0, pTexture, osg::StateAttribute::ON);
+    // texture
+    std::vector<std::string> vTextureFiles = {"../data/texture/Marble.bmp", "../data/texture/Concrete.bmp"};
+
+    for (size_t i = 0; i < vTextureFiles.size(); ++i) {
+        auto pTexture = generateTexture(vTextureFiles[i]);
+
+        if (pTexture != nullptr)
+            pStateset->setTextureAttributeAndModes(i, pTexture, osg::StateAttribute::ON);
+    }
+    
+    // materials
+    auto pMaterial = generateMaterial();
     if (pMaterial != nullptr) 
-        stateset->setAttributeAndModes(pMaterial, osg::StateAttribute::ON);
+        pStateset->setAttributeAndModes(pMaterial, osg::StateAttribute::ON);
 
-    osg::Geode* geode = new osg::Geode;
-    geode->addDrawable(geom);
+    osg::Geode* pGeode = new osg::Geode;
+    pGeode->addDrawable(pGeom);
 
-    return geode;
+    return pGeode;
 }
 
 osg::LightSource* HGVertex::light() {
@@ -140,4 +149,101 @@ osg::LightSource* HGVertex::light() {
   
 
     return lightSource.release();
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+osg::Geometry* generateGeometry(osg::ref_ptr<osg::Vec3Array> pVertices,
+                                osg::ref_ptr<osg::DrawElementsUInt> pTriangles, 
+                                osg::ref_ptr<osg::Vec2Array> pTexcoords,
+                                size_t nIndex = 0,
+                                const std::string &sTexFile = "../data/texture/Marble.bmp") {
+    osg::Geometry* pGeom = new osg::Geometry;
+    pGeom->setVertexArray(pVertices.get());
+    if (pTriangles.valid() && pTriangles->size() > 0) {
+        pGeom->addPrimitiveSet(pTriangles.get());
+    }
+    if (pTexcoords.valid()) {
+        pGeom->setTexCoordArray(nIndex, pTexcoords.get());
+    }
+
+    osg::StateSet *pStateset = pGeom->getOrCreateStateSet();
+    pStateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    pStateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+
+    // texture
+    auto pTexture = generateTexture(sTexFile);
+    if (pTexture != nullptr)
+        pStateset->setTextureAttributeAndModes(nIndex, pTexture, osg::StateAttribute::ON);
+
+    // materials
+    auto pMaterial = generateMaterial();
+    if (pMaterial != nullptr) 
+        pStateset->setAttributeAndModes(pMaterial, osg::StateAttribute::ON);
+
+    return pGeom;
+}
+
+
+osg::Node* HGVertex::showBoxWithMultiTexture() {
+    generateCubeVertex(m_pVertices);
+    osg::ref_ptr<osg::DrawElementsUInt> pTriangles1, pTriangles2;
+    generateCubeFace(pTriangles1, 0, 18);
+    generateCubeFace(pTriangles2, 18, 36);
+    osg::ref_ptr<osg::Vec2Array> pTexcoords1, pTexcoords2;
+    generateCubeTexcoord(pTexcoords1);
+    generateCubeTexcoord(pTexcoords2);
+    osg::Geometry* pGeom1 = generateGeometry(m_pVertices, pTriangles1, pTexcoords1);
+    osg::Geometry* pGeom2 = generateGeometry(m_pVertices, pTriangles2, pTexcoords2, 1, "../data/texture/Wood.bmp");
+
+    osg::Geode* geode = new osg::Geode;
+    geode->addDrawable(pGeom1);
+    geode->addDrawable(pGeom2);
+
+    return geode;
+}
+
+void generateCubeTexcoordQuat(osg::ref_ptr<osg::Vec2Array> &pTexcoord, osg::ref_ptr<osg::DrawElementsUInt> &pTriangles) {
+    if (!pTexcoord.valid()) {
+        pTexcoord = new osg::Vec2Array;
+    } else {
+        pTexcoord->clear();
+    }
+
+    std::vector<osg::Vec2> vCoord = {osg::Vec2(0.0f, 0.0f), osg::Vec2(1.0f, 0.0f), osg::Vec2(1.0f, 1.0f),
+                                    osg::Vec2(0.0f, 0.0f), osg::Vec2(1.0f, 1.0f), osg::Vec2(0.0f, 1.0f)
+                                    };
+
+    for (size_t i = 0; i < 8; ++i) {
+        pTexcoord->push_back(vCoord[i % vCoord.size()]);
+    }
+    size_t i = 0;
+    for (size_t j = 0; j < pTriangles->size(); ++j) {
+        (*pTexcoord)[pTriangles->at(j)] = vCoord[i++];
+    }
+}
+
+osg::Node *HGVertex::showBoxWithRightTexture() {
+    std::vector<std::string> vTexFiles = {"../data/texture/basecolor.bmp", 
+                                        "../data/texture/Concrete.bmp", 
+                                        "../data/texture/posx.bmp", 
+                                        "../data/texture/normal.bmp", 
+                                        "../data/texture/rockwall.bmp", 
+                                        "../data/texture/Wood.bmp"};
+
+    osg::Geode* geode = new osg::Geode;
+
+    generateCubeVertex(m_pVertices);
+    for (size_t i = 0; i < 6; ++i) {
+        osg::ref_ptr<osg::DrawElementsUInt> pTriangles;
+        generateCubeFace(pTriangles, i * 6, (i + 1) * 6);
+        osg::ref_ptr<osg::Vec2Array> pTexcoords;
+        generateCubeTexcoordQuat(pTexcoords, pTriangles);
+
+        osg::Geometry* pGeom = generateGeometry(m_pVertices, pTriangles, pTexcoords, 0, vTexFiles[i]);
+
+        geode->addDrawable(pGeom);
+    }
+    return geode;
+
 }

@@ -11,16 +11,19 @@
 #include <osg/Material>
 #include <osg/LightSource>
 
+#include <vector>
+
 class HGVertex {
 public:
     HGVertex();
 
-    osg::Node* originBox();
+    osg::Node* showBoxWithTexture();
+    osg::Node* showBoxWithMultiTexture();
+    osg::Node* showBoxWithRightTexture();
     osg::LightSource* light();
 
 public:
-    osg::ref_ptr<osg::Vec3Array>   _vertices;
-    osg::ref_ptr<osg::Vec2Array>   _texcoord;
-
-    osg::ref_ptr<osg::DrawElementsUInt> _triangles;
+    osg::ref_ptr<osg::Vec3Array> m_pVertices;
+    osg::ref_ptr<osg::Vec2Array> m_pTexcoords;
+    osg::ref_ptr<osg::DrawElementsUInt> m_pTriangles;
 };

@@ -1,22 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.16...4.0)
 
-set(projectName AllOsgProj)
-project(${projectName})
+project(AllOsgProj)
 
-set(target 
-    # imguiOsg
-    # imguiShader
-    # osgShowObjects
-    # osgReconFrame
-    osgImguiOpengl
-    # osgParseBag
-)
-
-ADD_SUBDIRECTORY(${target}
-osgImguiOpengl
-)
 # ADD_SUBDIRECTORY(imguiShader)
-# ADD_SUBDIRECTORY(osgForTempTest)
+
 # ADD_SUBDIRECTORY(osgParseBag)
 # ADD_SUBDIRECTORY(osgReconFrame)
 # ADD_SUBDIRECTORY(osgReconShowResult)
@@ -24,6 +11,8 @@ osgImguiOpengl
 # ADD_SUBDIRECTORY(osgShowObjects)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+# ADD_SUBDIRECTORY(osgShowObjects)
+ADD_SUBDIRECTORY(osgClassicalShow)
 else()
 ADD_SUBDIRECTORY(ffmpeg-filter)
 ADD_SUBDIRECTORY(osgGDAL)

@@ -27,7 +27,9 @@ public:
 
 	virtual ~OsgManager();
 
-	void showBox();
+	void showBoxWithTexture();
+	void showBoxWithMultiTexture();
+	void showBoxWithRightTexture();
 
 	
 protected:

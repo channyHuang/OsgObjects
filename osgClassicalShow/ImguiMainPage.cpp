@@ -44,8 +44,14 @@ void ImguiMainPage::drawUi() {
     {
         if (ImGui::BeginTabItem("tabitem title"))
         {
-            if (ImGui::Button("show box")) {
-                OsgManager::getInstance()->showBox();
+            if (ImGui::Button("show box with texture")) {
+                OsgManager::getInstance()->showBoxWithTexture();
+            }
+            if (ImGui::Button("show box with multi texture")) {
+                OsgManager::getInstance()->showBoxWithMultiTexture();
+            }
+            if (ImGui::Button("show box with right texture")) {
+                OsgManager::getInstance()->showBoxWithRightTexture();
             }
 
             ImGui::EndTabItem();
