@@ -20,9 +20,9 @@ protected:
 
 private:
     osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
+    osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
+    PickHandler* m_pPicker = nullptr;
 
     char* cFileName;
     const int MAXN_FILE_LEN = 1024;
-    osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
-    PickHandler* m_pPicker = nullptr;
 };

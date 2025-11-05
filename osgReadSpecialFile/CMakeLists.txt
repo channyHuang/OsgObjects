@@ -34,6 +34,8 @@ add_subdirectory(${COMMON_DIR}/imgui imgui)
 add_subdirectory(${COMMON_DIR}/commonOsg commonOsg)
 add_subdirectory(${COMMON_DIR}/nativefiledialog nativefiledialog)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/plySpecial plySpecial)
+
 link_directories(${PROJECT_NAME}
 	${GLFW3_LIBRARY_DIR}
 	${OPENSCENEGRAPH_LIBRARIES}
@@ -49,6 +51,7 @@ target_link_libraries(${PROJECT_NAME}
 	imgui
 	commonOsg
 	nativefiledialog
+	plySpecial
 	GL
 	glfw
 	${OPENSCENEGRAPH_LIBRARIES}
@@ -58,6 +61,7 @@ target_link_libraries(${PROJECT_NAME}
 	imgui
 	commonOsg
 	nativefiledialog
+	plySpecial
 	opengl32
 	glfw3
 	${OPENSCENEGRAPH_LIBRARIES}

@@ -20,10 +20,16 @@ ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHand
     m_pPicker = new PickHandler();
     m_pPicker->setCallback(pickCbFunc, nullptr);
     viewer.addEventHandler(m_pPicker);
+
+    cFileName = new char[nMaxFileNameLength];
+    memset(cFileName, 0, nMaxFileNameLength);
 }
 
 ImguiMainPage::~ImguiMainPage() {
     pviewer = nullptr;
+    if (cFileName != nullptr) {
+        delete[]cFileName;
+    }
 }
 
 void ImguiMainPage::drawUi() {
@@ -31,9 +37,15 @@ void ImguiMainPage::drawUi() {
     
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
-        //if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, MAXN_FILE_LEN, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        //}
-        //ImGui::SameLine();
+        if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, MAXN_FILE_LEN, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Open File")) {
+            nfdresult_t result = NFD_OpenDialog(""/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
+            if (result == NFD_OKAY) {
+
+            }
+        }
         
         if (ImGui::BeginTabItem("Unwrap"))
         {

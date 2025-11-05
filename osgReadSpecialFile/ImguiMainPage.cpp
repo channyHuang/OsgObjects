@@ -63,6 +63,13 @@ void ImguiMainPage::drawUi() {
         }
     }
 
+    if (ImGui::Button("Switch Scene")) {
+        OsgManager::getInstance()->switchScene();
+    }
+    if (ImGui::Button("Reset Scene")) {
+        m_pCameraHandler->reset();
+    }
+
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("Load raw volume of Instant-ngp"))
@@ -75,6 +82,14 @@ void ImguiMainPage::drawUi() {
                 load("E:/tmp_res/lab_sub/volume_raw");
             }
 
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Load Special Model")) {
+
+            if (ImGui::Button("load special ply")) {
+                OsgManager::getInstance()->loadSpecialPly();
+            }
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
