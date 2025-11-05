@@ -1,12 +1,13 @@
 #pragma once
 
-#include "commonOsg/OsgImguiHandler.h"
-
 #include <osgViewer/Viewer>
 #include <osgDB/ReadFile>
 #include <osg/ref_ptr>
 
+#include "commonOsg/OsgImguiHandler.h"
 #include "commonOsg/osgPickHandler.h"
+#include "commonOsg/osgCameraHandler.h"
+#include "osgManager.h"
 
 class ImguiMainPage : public OsgImGuiHandler {
 public:
@@ -28,5 +29,5 @@ private:
 
     char* cFileName;
     osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
-    PickHandler* picker = nullptr;
+    PickHandler* m_pPicker = nullptr;
 };
