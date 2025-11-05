@@ -35,7 +35,7 @@ static void RasterizeTriangle(uint8_t* dest, int destWidth, const int* t0, const
 
 bool MeshPostProcessing::unwrap() {
     bProcessingFinish = false;
-    if (sFileName.length() <= 0) sFileName = "E:/thirdLibs/CGAL-5.4-beta1/data/meshes/sphere.ply";
+    if (sFileName.length() <= 0) sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply";
     output_mesh.clear();
     if (!CGAL::IO::read_polygon_mesh(sFileName.c_str(), output_mesh)) {
         std::cerr << "Error: read file " << sFileName << " points = " << output_mesh.number_of_vertices() << std::endl;
@@ -50,7 +50,7 @@ bool MeshPostProcessing::unwrap() {
     }
 
     indices.clear();
-    for (auto& f : output_mesh.faces()) {
+    for (auto f : output_mesh.faces()) {
         for (auto vi : CGAL::vertices_around_face(output_mesh.halfedge(f), output_mesh))
             indices.push_back(vi.idx());
     }
@@ -119,7 +119,7 @@ bool MeshPostProcessing::unwrap() {
             //ofs << positionColor[vd] << " " << positionColor[vd + 1] << " " << positionColor[vd + 2];
             ofs << std::endl;
         }
-        for (auto& f : output_mesh.faces()) {
+        for (auto f : output_mesh.faces()) {
             ofs << "3 ";
             int idx = 0;
             for (auto vi : CGAL::vertices_around_face(output_mesh.halfedge(f), output_mesh)) {
@@ -150,7 +150,7 @@ bool MeshPostProcessing::unwrap(const std::string& sFileName, std::vector<std::p
     }
 
     indices.clear();
-    for (auto& f : output_mesh.faces()) {
+    for (auto f : output_mesh.faces()) {
         for (auto vi : CGAL::vertices_around_face(output_mesh.halfedge(f), output_mesh))
             indices.push_back(vi.idx());
     }

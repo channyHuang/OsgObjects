@@ -12,28 +12,28 @@
 #include <osgViewer/Renderer>
 #include <osg/Texture2D>
 #include <osg/PolygonMode>
-class OsgManager
+
+#include "commonOsg/osgManagerBase.h"
+
+class OsgManager : public OsgManagerBase
 {
 public:
 	static OsgManager* getInstance() {
-		if (instance == nullptr) {
-			instance = new OsgManager();
+		if (m_pInstance == nullptr) {
+			m_pInstance = new OsgManager();
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	~OsgManager();
-
-	void setViewer(osgViewer::Viewer& viewer);
-	void show();
+	virtual ~OsgManager();
 
 	GLuint genTexture(const unsigned char* data, int width, int height);
 
-private:
-	OsgManager();
+protected:
+	static OsgManager* m_pInstance;
 	
-private:
-	static OsgManager* instance;
+protected:
+	OsgManager();
 
 	osg::ref_ptr<osg::Group> root = nullptr;
 	osg::ref_ptr<osg::Group> rootWireTerrain = nullptr;

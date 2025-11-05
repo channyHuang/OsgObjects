@@ -5,15 +5,21 @@
 
 GLuint textureID;
 
-ImguiMainPage::ImguiMainPage() {
-    cFileName = new char[MAXN_FILE_LEN];
-    memset(cFileName, 0, MAXN_FILE_LEN);
+void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
+	OsgManager::getInstance()->showPick(vPos);
 }
 
-ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer) {
-    pviewer = &viewer;
+ImguiMainPage::ImguiMainPage() {
+}
 
+ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
+    pviewer = &viewer;
+    m_pCameraHandler = pCameraHandler;
     OsgManager::getInstance()->setViewer(viewer);
+
+    m_pPicker = new PickHandler();
+    m_pPicker->setCallback(pickCbFunc, nullptr);
+    viewer.addEventHandler(m_pPicker);
 }
 
 ImguiMainPage::~ImguiMainPage() {
@@ -32,7 +38,7 @@ void ImguiMainPage::drawUi() {
         if (ImGui::BeginTabItem("Unwrap"))
         {
             if (ImGui::Button("show charts")) {
-                MeshPostProcessing::getInstance()->sFileName = "E:/projects/osgReconMesh/tmp.obj"; //cFileName;
+                MeshPostProcessing::getInstance()->sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply"; //cFileName;
                 MeshPostProcessing::getInstance()->unwrap();
 
                 if (MeshPostProcessing::getInstance()->bProcessingFinish)
@@ -50,6 +56,7 @@ void ImguiMainPage::drawUi() {
 
             ImGui::EndTabItem();
         }
+        ImGui::EndTabBar();
     }
     ImGui::End();
 }
