@@ -27,6 +27,7 @@ public:
 	virtual ~OsgManager();
 
 	void loadSpecialPly();
+	void transfer();
 
 protected:
 	OsgManager();

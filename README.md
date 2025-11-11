@@ -1,5 +1,5 @@
 # OsgObjects
-objects using osg and imgui as ui
+sample projects using osg and imgui as ui
 
 # imguiOsg
 使用imgui做界面，osg做渲染显示。
@@ -15,6 +15,22 @@ ERROR: 0:1: '' :  version '130' is not supported
 
 # imguiShader
 使用OpenGL+glfw+imgui做界面及渲染。
+
+# osgClassicalShow
+多纹理显示立方体样例。
+
+![Box](./gui/classicalShow_box.png)
+
+# osgGDAL
+使用GDAL
+
+# osgImguiOpengl
+
+# osgParseBag
+解析ros的数据包，使得windows下或不安装ros也能使用ros数据包进行其它开发。
+
+# osgReadSpecialFile
+读取自定义的ply模型文件，默认的ply插件不支持读取同一顶点不同纹理uv的网格模型文件
 
 # osgReconFrame
 [测试数据集-20-thermocolorlab.tar](https://robotik.informatik.uni-wuerzburg.de/telematics/3dscans/)

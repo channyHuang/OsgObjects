@@ -83,6 +83,11 @@ namespace ply
         // The indices of the faces in premitive set
         osg::ref_ptr<osg::DrawElementsUInt> _triangles;
         osg::ref_ptr<osg::DrawElementsUInt> _quads;
+
+
+        std::vector< osg::ref_ptr<osg::Vec2Array> > vTexcoords;
+        std::vector< osg::ref_ptr<osg::DrawElementsUInt> > vTriangles;
+        std::vector< std::vector<int> > vTexFlags;
     };
 }
 

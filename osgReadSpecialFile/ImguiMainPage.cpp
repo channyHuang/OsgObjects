@@ -70,6 +70,12 @@ void ImguiMainPage::drawUi() {
         m_pCameraHandler->reset();
     }
 
+    ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
+    if (m_pCameraHandler->m_bBack2WorldCenter) {
+        m_pCameraHandler->back2WorldCenter();
+        m_pCameraHandler->m_bBack2WorldCenter = false;
+    }
+
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("Load raw volume of Instant-ngp"))
@@ -89,6 +95,9 @@ void ImguiMainPage::drawUi() {
 
             if (ImGui::Button("load special ply")) {
                 OsgManager::getInstance()->loadSpecialPly();
+            }
+            if (ImGui::Button("load special ply and save to osgb")) {
+                OsgManager::getInstance()->transfer();
             }
             ImGui::EndTabItem();
         }

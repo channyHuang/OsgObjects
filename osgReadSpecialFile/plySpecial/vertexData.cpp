@@ -23,6 +23,7 @@
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
 #include <osg/Texture2D>
+#include <osg/PolygonMode>
 
 using namespace std;
 using namespace ply;
@@ -222,22 +223,25 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
     // temporary face structure for ply loading
     struct _Face
     {
-        unsigned char   nVertices;
-        int*            vertices;
-        unsigned char   nTexcoords;
+        unsigned int    nVertices;
+        unsigned int*   vertices;
+        unsigned int   nTexcoords;
         float*          texcoords;
+        int             nTexIndex;
     } face;
 
     PlyProperty faceProps[] =
     {
-        { "vertex_indices|vertex_index", PLY_INT, PLY_INT, offsetof( _Face, vertices ),
-          1, PLY_UCHAR, PLY_UCHAR, offsetof( _Face, nVertices ) }, 
-          { "texcoord", PLY_FLOAT32, PLY_FLOAT32, offsetof( _Face, texcoords ),
-          1, PLY_UCHAR, PLY_UCHAR, offsetof( _Face, nTexcoords ) }
+        { "vertex_indices|vertex_index", PLY_UINT32, PLY_UINT, offsetof( _Face, vertices ),
+          1, PLY_UINT8, PLY_UINT, offsetof( _Face, nVertices ) }, 
+          { "texcoord", PLY_FLOAT32, PLY_FLOAT, offsetof( _Face, texcoords ),
+          1, PLY_UINT8, PLY_UINT, offsetof( _Face, nTexcoords ) },
+          { "texnumber", PLY_INT32, PLY_INT32, offsetof(_Face, nTexIndex), 0, 0, 0, 0}
     };
 
     ply_get_property( file, "face", &faceProps[0] );
     ply_get_property( file, "face", &faceProps[1] );
+    ply_get_property( file, "face", &faceProps[2] );
 
     if(!_triangles.valid())
         _triangles = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
@@ -257,39 +261,36 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
         face.vertices = 0;
         face.nTexcoords = 0;
         face.texcoords = 0;
+        face.nTexIndex = 0;
 
         ply_get_element( file, static_cast< void* >( &face ) );
         if (face.vertices)
         {
             if (face.texcoords) {
+                while (face.nTexIndex >= vTexcoords.size()) {
+                    vTexcoords.push_back(new osg::Vec2Array(_vertices->size()));
+                    vTriangles.push_back(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0));
+                    vTexFlags.push_back(std::vector<int>(_vertices->size(), 0));
+                }
+
                 for(int j = 0 ; j < face.nVertices ; j++)
                 {
                     unsigned int vindex = face.vertices[j];
-                    if (fabs(_texcoord->at(vindex).x() + 1) <= 1e-4) {
-                        _texcoord->at(vindex) = osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]);
-                    }
-                    else {
+                    if ((vTexFlags[face.nTexIndex][vindex] & 1) == 0) {
+                        vTexcoords[face.nTexIndex]->at(vindex) = osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]);
+                    } else {
                         face.vertices[j] = _vertices->size();
 
                         _vertices->push_back(osg::Vec3(_vertices->at(vindex).x(), _vertices->at(vindex).y(), _vertices->at(vindex).z()));
 
-                        if (_normals && _normals->size() > vindex) {
-                            _normals->push_back( osg::Vec3( _normals->at(vindex).x(), _normals->at(vindex).y(), _normals->at(vindex).z()));
+                        for (int x = 0; x < vTexcoords.size(); x++) {
+                            vTexcoords[x]->push_back(osg::Vec2(0.f, 0.f));
+                            vTexFlags[x].push_back(0);
                         }
-                        if (_colors && _colors->size() > vindex) {
-                            _colors->push_back( osg::Vec4( _colors->at(vindex).r(), _colors->at(vindex).g(), _colors->at(vindex).b(), 1.f));
-                        }
-                        if (_ambient && _ambient->size() > vindex) {
-                            _ambient->push_back( osg::Vec4( _ambient->at(vindex).r(), _ambient->at(vindex).g(), _ambient->at(vindex).b(), 1.f));
-                        }
-                        if (_diffuse && _diffuse->size() > vindex) {
-                            _diffuse->push_back( osg::Vec4( _diffuse->at(vindex).r(), _diffuse->at(vindex).g(), _diffuse->at(vindex).b(), 1.f));
-                        }
-                        if (_specular && _specular->size() > vindex) {
-                            _specular->push_back( osg::Vec4( _specular->at(vindex).r(), _specular->at(vindex).g(), _specular->at(vindex).b(), 1.f));
-                        }
-                        _texcoord->push_back(osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]));
+
+                        vTexcoords[face.nTexIndex]->at(face.vertices[j]) = osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]);
                     }
+
                 }
             }
 
@@ -302,7 +303,7 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
                     if(face.nVertices == 4)
                         _quads->push_back(face.vertices[index]);
                     else
-                        _triangles->push_back(face.vertices[index]);
+                        vTriangles[face.nTexIndex]->push_back(face.vertices[index]);
                 }
             }
 
@@ -358,7 +359,7 @@ osg::Node* VertexData::readPlyFile( const char* filename, const bool ignoreColor
              << fileType << ", version = " << version << endl;
     #endif
 
-    std::string textureFile;
+    std::vector<std::string> vTextureFiles;
     for( int i = 0; i < nComments; i++ )
     {
         if( equal_strings( comments[i], "modified by flipply" ) )
@@ -367,11 +368,12 @@ osg::Node* VertexData::readPlyFile( const char* filename, const bool ignoreColor
         }
         if (strncmp(comments[i], "TextureFile",11)==0)
         {
-            textureFile = comments[i]+12;
+            std::string textureFile = comments[i]+12;
             if (!osgDB::isAbsolutePath(textureFile))
             {
                 textureFile = osgDB::concatPaths(osgDB::getFilePath(filename), textureFile);
             }
+            vTextureFiles.push_back(textureFile);
         }
     }
     for( int i = 0; i < nPlyElems; ++i )
@@ -521,87 +523,93 @@ osg::Node* VertexData::readPlyFile( const char* filename, const bool ignoreColor
    // If the result is true means the ply file is successfully read
    if(result)
    {
-        // Create geometry node
-        osg::Geometry* geom  =  new osg::Geometry;
-
-        // set the vertex array
-        geom->setVertexArray(_vertices.get());
-
-        // Add the primitive set
-        bool hasTriOrQuads = false;
-        if (_triangles.valid() && _triangles->size() > 0 )
-        {
-            geom->addPrimitiveSet(_triangles.get());
-            hasTriOrQuads = true;
-        }
-
-        if (_quads.valid() && _quads->size() > 0 )
-        {
-            geom->addPrimitiveSet(_quads.get());
-            hasTriOrQuads = true;
-        }
-
-        // Print points if the file contains unsupported primitives
-        if(!hasTriOrQuads)
-            geom->addPrimitiveSet(new osg::DrawArrays(GL_POINTS, 0, _vertices->size()));
-
-
-        // Apply the colours to the model; at the moment this is a
-        // kludge because we only use one kind and apply them all the
-        // same way. Also, the priority order is completely arbitrary
-
-        if(_colors.valid())
-        {
-            geom->setColorArray(_colors.get(), osg::Array::BIND_PER_VERTEX );
-        }
-        else if(_ambient.valid())
-        {
-            geom->setColorArray(_ambient.get(), osg::Array::BIND_PER_VERTEX );
-        }
-        else if(_diffuse.valid())
-        {
-            geom->setColorArray(_diffuse.get(), osg::Array::BIND_PER_VERTEX );
-        }
-        else if(_specular.valid())
-        {
-            geom->setColorArray(_specular.get(), osg::Array::BIND_PER_VERTEX );
-        }
-        else if (_texcoord.valid())
-        {
-            geom->setTexCoordArray(0, _texcoord.get());
-        }
-
-        // If the model has normals, add them to the geometry
-        if(_normals.valid())
-        {
-            geom->setNormalArray(_normals.get(), osg::Array::BIND_PER_VERTEX);
-        }
-        else
-        {   // If not, use the smoothing visitor to generate them
-            // (quads will be triangulated by the smoothing visitor)
-            osgUtil::SmoothingVisitor::smooth((*geom), osg::PI/2);
-        }
-
-        // set flags true to activate the vertex buffer object of drawable
-        geom->setUseVertexBufferObjects(true);
-
-        osg::ref_ptr<osg::Image> image;
-        if (!textureFile.empty() && (image = osgDB::readRefImageFile(textureFile)) != NULL)
-        {
-            osg::Texture2D *texture = new osg::Texture2D;
-            texture->setImage(image.get());
-            texture->setResizeNonPowerOfTwoHint(false);
-
-            osg::TexEnv *texenv = new osg::TexEnv;
-            texenv->setMode(osg::TexEnv::REPLACE);
-
-            osg::StateSet *stateset = geom->getOrCreateStateSet();
-            stateset->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-            stateset->setTextureAttribute(0, texenv);
-        }
-
         osg::Geode* geode = new osg::Geode;
-        geode->addDrawable(geom);
+
+        // Create geometry node
+        for (int i = 0; i < vTexcoords.size(); ++i ) {
+            osg::Geometry* geom  =  new osg::Geometry;
+
+            // set the vertex array
+            geom->setVertexArray(_vertices.get());
+
+            // Add the primitive set
+            bool hasTriOrQuads = false;
+            if (vTriangles[i].valid() && vTriangles[i]->size() > 0 )
+            {
+                geom->addPrimitiveSet(vTriangles[i].get());
+                hasTriOrQuads = true;
+            }
+
+            if (_quads.valid() && _quads->size() > 0 )
+            {
+                geom->addPrimitiveSet(_quads.get());
+                hasTriOrQuads = true;
+            }
+            // Print points if the file contains unsupported primitives
+            // if(!hasTriOrQuads)
+            //     geom->addPrimitiveSet(new osg::DrawArrays(GL_POINTS, 0, _vertices->size()));
+
+
+            // Apply the colours to the model; at the moment this is a
+            // kludge because we only use one kind and apply them all the
+            // same way. Also, the priority order is completely arbitrary
+
+            if(_colors.valid())
+            {
+                geom->setColorArray(_colors.get(), osg::Array::BIND_PER_VERTEX );
+            }
+            else if(_ambient.valid())
+            {
+                geom->setColorArray(_ambient.get(), osg::Array::BIND_PER_VERTEX );
+            }
+            else if(_diffuse.valid())
+            {
+                geom->setColorArray(_diffuse.get(), osg::Array::BIND_PER_VERTEX );
+            }
+            else if(_specular.valid())
+            {
+                geom->setColorArray(_specular.get(), osg::Array::BIND_PER_VERTEX );
+            }
+            else if (vTexcoords[i].valid())
+            {
+                geom->setTexCoordArray(i, vTexcoords[i].get());
+            }
+
+            // If the model has normals, add them to the geometry
+            if(_normals.valid())
+            {
+                geom->setNormalArray(_normals.get(), osg::Array::BIND_PER_VERTEX);
+            }
+            else
+            {   // If not, use the smoothing visitor to generate them
+                // (quads will be triangulated by the smoothing visitor)
+                osgUtil::SmoothingVisitor::smooth((*geom), osg::PI/2);
+            }
+
+            // set flags true to activate the vertex buffer object of drawable
+            geom->setUseVertexBufferObjects(true);
+
+            osg::ref_ptr<osg::Image> image;
+            if (!vTextureFiles.empty() && (image = osgDB::readRefImageFile(vTextureFiles[i])) != NULL)
+            {
+                osg::Texture2D *texture = new osg::Texture2D;
+                texture->setImage(image.get());
+                texture->setResizeNonPowerOfTwoHint(false);
+
+                osg::TexEnv *texenv = new osg::TexEnv;
+                texenv->setMode(osg::TexEnv::REPLACE);
+
+                osg::StateSet *stateset = geom->getOrCreateStateSet();
+                stateset->setTextureAttributeAndModes(i, texture, osg::StateAttribute::ON);
+                stateset->setTextureAttribute(0, texenv);
+
+                // osg::PolygonMode* polymode = new osg::PolygonMode;
+                // polymode->setMode(osg::PolygonMode::FRONT_AND_BACK,osg::PolygonMode::LINE);
+                // stateset->setAttributeAndModes(polymode,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+            }
+            geode->addDrawable(geom);
+        }
+        
         return geode;
     }
 
