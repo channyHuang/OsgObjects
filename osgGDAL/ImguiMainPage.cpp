@@ -1,64 +1,71 @@
 #include "ImguiMainPage.h"
 
 #include "osgManager.h"
+#include "nativefiledialog/nfd.h"
 
-#include "gdal.h"
-#include "gdal_priv.h"
-#include "ogr_spatialref.h"
+#include "HG_GDAL.h"
+
+void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
+	OsgManager::getInstance()->showPick(vPos);
+}
 
 ImguiMainPage::ImguiMainPage() {
     cFileName = new char[nMaxFileNameLength];
-    cOtherFileName = new char[nMaxFileNameLength];
 }
 
-ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer) {
+ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
     pviewer = &viewer;
-
+    m_pCameraHandler = pCameraHandler;
     OsgManager::getInstance()->setViewer(viewer);
+
+    m_pPicker = new PickHandler();
+    m_pPicker->setCallback(pickCbFunc, nullptr);
+    viewer.addEventHandler(m_pPicker);
+
+    cFileName = new char[nMaxFileNameLength];
+    memset(cFileName, 0, nMaxFileNameLength);
 }
 
 ImguiMainPage::~ImguiMainPage() {
     pviewer = nullptr;
+    if (cFileName != nullptr) {
+        delete[]cFileName;
+    }
 }
 
 void ImguiMainPage::drawUi() {
     ImGui::Begin("GDAL");
+    
+    if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
+    if (ImGui::Button("Open File")) {
+        nfdresult_t result = NFD_OpenDialog("bin"/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
+        if (result == NFD_OKAY) {
+        }
+    }
+
     if (ImGui::Button("Switch Scene")) {
+        OsgManager::getInstance()->switchScene();
     }
-    if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if (ImGui::Button("Reset Scene")) {
+        m_pCameraHandler->reset();
     }
-    if (ImGui::InputTextWithHint("path", "gdal-data", cOtherFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {
+
+    ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
+    if (m_pCameraHandler->m_bBack2WorldCenter) {
+        m_pCameraHandler->back2WorldCenter();
+        m_pCameraHandler->m_bBack2WorldCenter = false;
     }
-    if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
-    {
+
+    if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None)) {
         if (ImGui::BeginTabItem("GIS functions")) {
             if (ImGui::Button("translate geometric system")) {
-                sFileName = std::string(cFileName);
-                std::string sOtherFileName = std::string(cOtherFileName);
-                if (sOtherFileName.length() <= 0) {
-                    sOtherFileName = "E:/thirdLibs/3rdparty/gdal-data";
+                std::string sFileName = std::string(cFileName);
+                if (sFileName.length() > 0) {
+                    
                 }
-                CPLSetConfigOption("GDAL_DATA", sOtherFileName.c_str());
-
-                char* pszWKT = nullptr;
-                OGRSpatialReference oInGRS, oOutGRS;
-                //oInGRS.SetWellKnownGeogCS("WGS84");
-                //oOutGRS.SetWellKnownGeogCS("CGCS2000");
-
-                oInGRS.importFromEPSG(4326); //wgs84
-                oInGRS.exportToPrettyWkt(&pszWKT);
-                std::cout << "wgs84: " << pszWKT << std::endl;
-
-                oOutGRS.importFromEPSG(4490); //cgcs2000
-                oOutGRS.exportToPrettyWkt(&pszWKT);
-                std::cout << "cgcs2000: " << pszWKT << std::endl;
-
-                oOutGRS.SetTM(0, 114, 1.0, 38500000, 0);
-
-                OGRCoordinateTransformation* transform = OGRCreateCoordinateTransformation(&oInGRS, &oOutGRS);
-                double x = 113.3665, y = 23.2047;
-                transform->Transform(1, &x, &y);
-                std::cout << x << " " << y << std::endl;
+            }
+            if (ImGui::Button("test gdal")) {
+                HG_GDAL::convertModel("/home/channy/Documents/projects/OsgObjects/bin/tmp.osgb", "output_tiles");
             }
 
             ImGui::EndTabItem();

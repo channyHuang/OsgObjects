@@ -1,27 +1,14 @@
 #include "osgManager.h"
 
-#include "osgPickHandler.h"
+#include "commonOsg/commonOsg.h"
 
-#include "shaderParams.h"
+OsgManager* OsgManager::m_pInstance = nullptr;
 
-OsgManager* OsgManager::instance = nullptr;
-
-OsgManager::OsgManager() {
-	root = new osg::Group;
-	root->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-	root->addChild(createAxis());
-
-	sceneSwitch = new osg::Switch;
-	sceneSwitch->setAllChildrenOn();
+OsgManager::OsgManager() : OsgManagerBase() {
+	m_pMeshGroup = new osg::Group;
+	m_pSceneSwitcher->addChild(m_pMeshGroup);
 }
 
 OsgManager::~OsgManager() {
-	pviewer.release();
-}
-
-void OsgManager::setViewer(osgViewer::Viewer& viewer) {
-	pviewer = &viewer;
-
-	pviewer->addEventHandler(new PickHandler());
-	pviewer->setSceneData(root);
+	m_pMeshGroup.release();
 }
