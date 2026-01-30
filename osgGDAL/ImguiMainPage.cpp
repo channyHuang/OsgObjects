@@ -65,14 +65,13 @@ void ImguiMainPage::drawUi() {
                 }
             }
             if (ImGui::Button("test gdal")) {
-                HG_GDAL::convertModel("/home/channy/Documents/projects/OsgObjects/bin/tmp.osgb", "output_tiles");
+                HG_GDAL::convertModel("tmp.osgb", "output_tiles");
             
                 double val;
                 OGRSpatialReference inRs,outRs;
                 OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation( &inRs, &outRs );
                 HG_GDAL::Init(poCT, &val);
             }
-
 
             ImGui::EndTabItem();
         }
