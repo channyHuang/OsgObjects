@@ -16,7 +16,7 @@ OsgManager::~OsgManager() {
 }
 
 void OsgManager::loadSpecialPly() {
-	std::string sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply";
+	std::string sFileName = "/home/channy/Documents/projects/HaigeReconstruct/build/results/251204151631157/ply/scene.ply";
 	osg::Node* pNode = readPlySpecial(sFileName);
 
 	osg::Geode *pGeode = pNode->asGeode();
@@ -39,9 +39,7 @@ void OsgManager::loadSpecialPly() {
 	m_pSceneSwitcher->addChild(pGeodeWireframe);
 }
 
-void OsgManager::transfer() {
-	std::string sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply";
+void OsgManager::transfer(const std::string& sFileName) {
 	osg::Node* pNode = readPlySpecial(sFileName);
-
 	osgDB::writeNodeFile(*pNode, std::string("./tmp.osgb"));
 }

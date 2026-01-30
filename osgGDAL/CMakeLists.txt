@@ -54,7 +54,7 @@ target_link_libraries(${PROJECT_NAME}
 	glfw
 	${OPENSCENEGRAPH_LIBRARIES}
 
-	${GDAL_LIBRARIES}
+	GDAL::GDAL
 )
 else()
 target_link_libraries(${PROJECT_NAME}

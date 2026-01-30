@@ -58,7 +58,7 @@ void ImguiMainPage::drawUi() {
     
     if (ImGui::InputTextWithHint("file", "<.obj .ply .xyz>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
     if (ImGui::Button("Open File")) {
-        nfdresult_t result = NFD_OpenDialog("bin"/*"obj,ply,xyz,csv"*/, nullptr, &cFileName);
+        nfdresult_t result = NFD_OpenDialog("obj,ply,xyz,csv", nullptr, &cFileName);
         if (result == NFD_OKAY) {
         }
     }
@@ -97,7 +97,10 @@ void ImguiMainPage::drawUi() {
                 OsgManager::getInstance()->loadSpecialPly();
             }
             if (ImGui::Button("load special ply and save to osgb")) {
-                OsgManager::getInstance()->transfer();
+                std::string sFileName = std::string(cFileName);
+                if (sFileName.length() > 0) {
+                    OsgManager::getInstance()->transfer(sFileName);                
+                }
             }
             ImGui::EndTabItem();
         }

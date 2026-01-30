@@ -278,6 +278,7 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
                     unsigned int vindex = face.vertices[j];
                     if ((vTexFlags[face.nTexIndex][vindex] & 1) == 0) {
                         vTexcoords[face.nTexIndex]->at(vindex) = osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]);
+                        vTexFlags[face.nTexIndex][vindex] = 1;
                     } else {
                         face.vertices[j] = _vertices->size();
 
@@ -289,6 +290,7 @@ void VertexData::readTriangles( PlyFile* file, const int nFaces )
                         }
 
                         vTexcoords[face.nTexIndex]->at(face.vertices[j]) = osg::Vec2(face.texcoords[j << 1], face.texcoords[(j << 1) + 1]);
+                        vTexFlags[face.nTexIndex][face.vertices[j]] = 1;
                     }
 
                 }

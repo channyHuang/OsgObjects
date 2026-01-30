@@ -29,7 +29,23 @@ void translateSystem(const std::string& sFileName) {
 
 bool convertModel(const std::string& inputFile, const std::string& outputDir) {
     // 初始化GDAL
-    GDALAllRegister();
+    GDALAllRegister(); // 注册所有驱动
+
+    int driverCount = GDALGetDriverCount();
+    std::cout << "可用驱动列表:" << std::endl;
+    for(int i = 0; i < driverCount; i++) {
+        GDALDriverH hDriver = GDALGetDriver(i);
+        const char* driverName = GDALGetDriverShortName(hDriver);
+        std::cout << "驱动 " << i << ": " << driverName << " - " << GDALGetDriverLongName(hDriver) << std::endl;
+    }
+    
+    // 检查3D Tiles驱动
+    GDALDriverH hDriver = GDALGetDriverByName("3DTiles");
+    if (!hDriver) {
+        std::cerr << "3D Tiles驱动不可用" << std::endl;
+        // GDALClose(hSrcDS);
+        return false;
+    }
     
     // 打开OSGB文件
     GDALDatasetH hSrcDS = GDALOpenEx(
@@ -42,13 +58,7 @@ bool convertModel(const std::string& inputFile, const std::string& outputDir) {
         return false;
     }
     
-    // 检查3D Tiles驱动
-    GDALDriverH hDriver = GDALGetDriverByName("3DTiles");
-    if (!hDriver) {
-        std::cerr << "3D Tiles驱动不可用" << std::endl;
-        GDALClose(hSrcDS);
-        return false;
-    }
+    
     
     // 转换选项
     char** papszOptions = NULL;
@@ -77,5 +87,11 @@ bool convertModel(const std::string& inputFile, const std::string& outputDir) {
     
     return hDstDS != NULL;
 }
+
+void Init(OGRCoordinateTransformation *pOgrCT, double *Origin) {
+    double x, y, z;
+    pOgrCT->Transform(1, &x, &y, &z);
+}
+
 
 }

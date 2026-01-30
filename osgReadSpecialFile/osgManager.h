@@ -27,7 +27,7 @@ public:
 	virtual ~OsgManager();
 
 	void loadSpecialPly();
-	void transfer();
+	void transfer(const std::string& sFileName);
 
 protected:
 	OsgManager();
