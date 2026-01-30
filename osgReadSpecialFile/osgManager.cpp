@@ -16,7 +16,7 @@ OsgManager::~OsgManager() {
 }
 
 void OsgManager::loadSpecialPly() {
-	std::string sFileName = "/home/channy/Documents/projects/HaigeReconstruct/build/results/251204151631157/ply/scene.ply";
+	std::string sFileName = "../data/ply_ext/scene_dense_mesh_03-02-01.ply";
 	osg::Node* pNode = readPlySpecial(sFileName);
 
 	osg::Geode *pGeode = pNode->asGeode();
