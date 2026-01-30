@@ -229,10 +229,17 @@ int ParseBag::readImage(std::ifstream& ifs) {
         imgdata.push_back(buffer[i]);
     }
 
-    // cv::Mat image = cv::imdecode(imgdata, cv::IMREAD_COLOR);
+    cv::Mat image = cv::imdecode(imgdata, cv::IMREAD_COLOR);
     // if (image.data != nullptr) {
-    //    cv::imshow("win", image);
-    //    cv::waitKey(1);
+    // //    cv::imshow("win", image);
+    // //    cv::waitKey(1);
+    //     char name[10];
+    //     memset(name, 0, 10);
+    //     if (nIdx % 50 == 0) {
+    //         sprintf(name, "%05d.jpg", nIdx / 50);
+    //         cv::imwrite(name, image);
+    //     }
+    //     nIdx++;
     // }
 
     return datalen + 4;

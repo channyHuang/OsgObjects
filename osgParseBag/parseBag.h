@@ -56,6 +56,7 @@ private:
 	std::unordered_map<std::string, std::string> mapHeaderAttribute;
 	std::unordered_set<std::string> setHeaderString = { "compression", "topic", "callerid", "md5sum", "message_definition", "type" };
 	std::vector<int> counts;
+	size_t nIdx = 0;
 };
 
 #endif

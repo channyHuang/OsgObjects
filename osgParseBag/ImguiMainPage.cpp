@@ -2,7 +2,7 @@
 
 #include "osgManager.h"
 #include "parseBag.h"
-
+#include "nativefiledialog/nfd.h"
 GLuint textureID;
 
 ImguiMainPage::ImguiMainPage() {
@@ -21,21 +21,34 @@ ImguiMainPage::~ImguiMainPage() {
 
 void ImguiMainPage::drawUi() {
     ImGui::Begin("osg parse bag");
+
+    // if (ImGui::InputTextWithHint("file", "<.bag>", cFileName, nMaxFileNameLength, ImGuiInputTextFlags_EnterReturnsTrue)) {}
+    // if (ImGui::Button("Open File")) {
+    //     nfdresult_t result = NFD_OpenDialog("bag", nullptr, &cFileName);
+    //     if (result == NFD_OKAY) {
+    //     }
+    // }
+
     if (ImGui::Button("Switch Scene")) {
         OsgManager::getInstance()->switchScene();
     }
-    ImGui::Checkbox("Rotate By Axis", &m_pCameraHandler->bRotateByAxis);
-    if (m_pCameraHandler->bRotateByAxis) {
-        ImGui::Text("Rotate by axis: 0-x, 1-y, 2-z");
-        ImGui::SliderInt("Axis x y z", &m_pCameraHandler->axis, 0, 3);
+    if (ImGui::Button("Reset Scene")) {
+        m_pCameraHandler->reset();
     }
+
+    ImGui::Checkbox("Back Scene To World Center", &m_pCameraHandler->m_bBack2WorldCenter);
+    if (m_pCameraHandler->m_bBack2WorldCenter) {
+        m_pCameraHandler->back2WorldCenter();
+        m_pCameraHandler->m_bBack2WorldCenter = false;
+    }
+
     if (ImGui::BeginTabBar("Functions", ImGuiTabBarFlags_None))
     {
         if (ImGui::BeginTabItem("parse bag"))
         {
             //std::string fileName = "D:/dataset/lab/c2_lvi/20230630-obs-lvi.bag";
-            //std::string fileName = "D:/dataset/lab/c2_lvi/20230607lvi.bag";
-            std::string fileName = "D:/dataset/lab/c2_lvi/20230630-object-lvi.bag";
+            std::string fileName = "/home/channy/Documents/datasets/dataset_reconstruct/rosbag/20230607lvi.bag";
+            // std::string fileName = "D:/dataset/lab/c2_lvi/20230630-object-lvi.bag";
 
             if (ImGui::Button("parse header")) {
                 ParseBag::getInstance()->parseBag(fileName);
