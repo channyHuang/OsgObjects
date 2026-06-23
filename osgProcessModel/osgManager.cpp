@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "commonOsg/commonOsg.h"
+
 #include <vcg/complex/allocate.h>
 #include <vcg/complex/algorithms/pointcloud_normal.h>
 #include <wrap/io_trimesh/import_obj.h>
@@ -18,10 +20,6 @@ OsgManager::~OsgManager() {}
 
 void OsgManager::init() {
 	clear();
-
-	root->addChild(createSkyBox());
-	root->addChild(createAxis());
-	root->addChild(sceneSwitch);
 
 	bs = osg::BoundingSphere(osg::Vec3(0.f, 0.f, 0.f), 1.f);
 }
@@ -243,17 +241,17 @@ void OsgManager::transformObj(const std::string& sPath, std::string sPoseName, s
 		char cIndex[10] = { 0 };
 		sprintf(cIndex, "%03d", fileIdx);
 
-		osg::ref_ptr<osg::Geometry> pGeom = createGeomUsingTinyobj(fileName.path().root_name().string().c_str(), "");
+		// osg::ref_ptr<osg::Geometry> pGeom = createGeomUsingTinyobj(fileName.path().root_name().string().c_str(), "");
 
-		osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
-		osg::Matrix tr = vMatTranslate[fileIdx++];
-		std::ofstream ofs(sOutPath + std::string(cIndex) + ".obj");
-		for (int i = 0; i < varray->size(); ++i) {
+		// osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
+		// osg::Matrix tr = vMatTranslate[fileIdx++];
+		// std::ofstream ofs(sOutPath + std::string(cIndex) + ".obj");
+		// for (int i = 0; i < varray->size(); ++i) {
 
-			osg::Vec3 vRotPoint = tr.preMult(varray->at(i));
+		// 	osg::Vec3 vRotPoint = tr.preMult(varray->at(i));
 
-			ofs << "v " << vRotPoint.x() << " " << vRotPoint.y() << " " << vRotPoint.z() << std::endl;
-		}
-		ofs.close();
+		// 	ofs << "v " << vRotPoint.x() << " " << vRotPoint.y() << " " << vRotPoint.z() << std::endl;
+		// }
+		// ofs.close();
 	}
 }

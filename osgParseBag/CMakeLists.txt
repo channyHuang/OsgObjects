@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.8.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
 
 project(osgParseBag)
 
@@ -20,21 +20,6 @@ include_directories(${PROJECT_NAME}
 
 	${COMMON_DIR}
 )
-
-# Check C++17 support
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-if(COMPILER_SUPPORTS_CXX17)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-  add_definitions(-DCOMPILEDWITHC17)
-  message(STATUS "Using flag -std=c++17.")
-else()
-  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++17 support. Please use a different C++ compiler.")
-endif()
-
-add_subdirectory(${COMMON_DIR}/imgui imgui)
-add_subdirectory(${COMMON_DIR}/commonOsg commonOsg)
-add_subdirectory(${COMMON_DIR}/nativefiledialog nativefiledialog)
 
 link_directories(${PROJECT_NAME}
 	${GLFW3_LIBRARY_DIR}

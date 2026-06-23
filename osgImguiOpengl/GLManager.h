@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 
+#include "shader_m.h"
 #include "shader.h"
 
 enum class EDrawMode : int {
@@ -31,7 +32,7 @@ public:
 	void initBuffer();
 	void initShader();
 	void setPts(float fScale = 10);
-	void setMesh(float fScale = 10);
+	void setMesh(float fScale = 100);
 
 	void draw(EDrawMode eMode = EDrawMode::POINT);
 
@@ -47,7 +48,7 @@ private:
     static GLManager* m_pInstance;
 	GLFWwindow* m_pWindow = nullptr;
 
-	unsigned int m_VAO, m_VBO[4];
+	unsigned int m_VAO, m_VBO;
 	bool m_bSetBuffer = false;
 
 	std::vector<Point> m_vPts;

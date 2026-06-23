@@ -3,6 +3,8 @@
 #include "osgManager.h"
 #include "MeshPostProcessing.h"
 
+#include "nativefiledialog/nfd.h"
+
 GLuint textureID;
 
 void pickCbFunc(const osg::Vec3& vPos, void* pUser) {

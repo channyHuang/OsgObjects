@@ -15,9 +15,9 @@ const char* filter_negate = "negate[out]";
 const char* filter_edge = "edgedetect[out]";
 const char* filter_split4 = "scale=iw/2:ih/2[in_tmp];[in_tmp]split=4[in_1][in_2][in_3][in_4];[in_1]pad=iw*2:ih*2[a];[a][in_2]overlay=w[b];[b][in_3]overlay=0:h[d];[d][in_4]overlay=w:h[out]";
 const char* filter_vintage = "curves=vintage";
-const char* filter_brightness = "eq=brightness=0.5[out] ";    //ÁÁ¶È¡£The value must be a float value in range -1.0 to 1.0. The default value is "0". 
-const char* filter_contrast = "eq=contrast=1.5[out] ";        //¶Ô±È¶È¡£The value must be a float value in range -2.0 to 2.0. The default value is "1". 
-const char* filter_saturation = "eq=saturation=1.5[out] ";    //±¥ºÍ¶È¡£The value must be a float in range 0.0 to 3.0. The default value is "1". 
+const char* filter_brightness = "eq=brightness=0.5[out] ";    //ï¿½ï¿½ï¿½È¡ï¿½The value must be a float value in range -1.0 to 1.0. The default value is "0". 
+const char* filter_contrast = "eq=contrast=1.5[out] ";        //ï¿½Ô±È¶È¡ï¿½The value must be a float value in range -2.0 to 2.0. The default value is "1". 
+const char* filter_saturation = "eq=saturation=1.5[out] ";    //ï¿½ï¿½ï¿½Í¶È¡ï¿½The value must be a float in range 0.0 to 3.0. The default value is "1". 
 const char* filter_bilateral = "bilateral=sigmaS=3:sigmaR=0.3[out]";
 const char* filter_cas = "cas[out]";
 const char* filter_chromanr = "chromanr[out]";
@@ -32,7 +32,7 @@ const char* filter_vaguedenoiser = "vaguedenoiser[out]";
 int open_input_file(const char* filename)
 {
     int ret;
-    const AVCodec* dec;
+    AVCodec* dec;
 
     if ((ret = avformat_open_input(&fmt_ctx, filename, NULL, NULL)) < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");

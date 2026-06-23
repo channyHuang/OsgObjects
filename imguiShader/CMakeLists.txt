@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 4.0.0)
 
 project(imguiShader)
 
@@ -15,19 +15,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 #set(GLEW_INCLUDE_DIR "" CACHE PATH "")
 add_definitions(-DGLSL_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
-set(OUTER_DIR ${CMAKE_SOURCE_DIR}/../commonClass)
-add_subdirectory(${OUTER_DIR}/imgui imgui)
-add_subdirectory(${OUTER_DIR}/commonOsg commonOsg)
-add_subdirectory(${OUTER_DIR}/nativefiledialog nativefiledialog) 
-
 include_directories(${PROJECT_NAME}
     ${OUTER_DIR}
 
 	${GLFW3_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIR}
-	${EIGEN3_INCLUDE_DIR}
 	${GLM_INCLUDE_DIRS}
-	)
+)
 	
 link_directories(${PROJECT_NAME}
 	${GLFW3_LIBRARY_DIR}
@@ -39,22 +33,25 @@ ${FILES_C}
 ${FILES_H}
 )
 
-target_link_libraries(${PROJECT_NAME}
-	imgui
-	nativefiledialog
-	${GLM_LIBRARIES}
-)
-
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 target_link_libraries(${PROJECT_NAME}
 	GL
 	glfw
 	GLEW
-	
+
+	imgui
+	nativefiledialog
+	${GLM_LIBRARIES}
+	Eigen3::Eigen
 )
 else()
 target_link_libraries(${PROJECT_NAME}
 	opengl32
 	glfw3
+
+	imgui
+	nativefiledialog
+	${GLM_LIBRARIES}
+	Eigen3::Eigen
 )
 endif()

@@ -1,7 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.8.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
 
-set(projectName ffmpeg-filter)
-project(${projectName})
+project(ffmpeg-filter)
 
 find_package(OpenCV REQUIRED)
 
@@ -12,22 +11,21 @@ FILE(GLOB FILES_H "*.h" "*.inl")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-include_directories(${projectName}
-	"./../commonClass"
+include_directories(${PROJECT_NAME}
 	${ffmpeg_DIR}/include
 	${OpenCV_INCLUDE_DIRS}
-	)
+)
 	
-link_directories(${projectName}
+link_directories(${PROJECT_NAME}
 	${ffmpeg_DIR}/lib
-	)
+)
 
-add_executable(${projectName}
+add_executable(${PROJECT_NAME}
 ${FILES_C}
 ${FILES_H}
 )
 
-target_link_libraries(${projectName}
+target_link_libraries(${PROJECT_NAME}
 	avcodec
 	avdevice
 	avfilter
@@ -36,6 +34,5 @@ target_link_libraries(${projectName}
 	postproc
 	swresample
 	swscale
-	${OPENSCENEGRAPH_LIBRARIES}
 	${OpenCV_LIBS}
 )

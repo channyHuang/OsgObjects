@@ -25,4 +25,5 @@ private:
 
     char* cFileName;
     const int MAXN_FILE_LEN = 1024;
+    const int nMaxFileNameLength = 128;
 };

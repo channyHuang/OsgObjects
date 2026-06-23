@@ -4,8 +4,6 @@
 #include <osg/ref_ptr>
 
 #include "nativefiledialog/nfd.h"
-#include "commonFunc/signalSlots.h"
-#include "osgManager.h"
 
 #include "commonOsg/OsgImguiHandler.h"
 #include "commonOsg/osgPickHandler.h"

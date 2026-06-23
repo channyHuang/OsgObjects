@@ -29,7 +29,7 @@ int main() {
         return -1;
     }
     // shader
-    GLManager::getInstance()->initShader();
+    // GLManager::getInstance()->initShader();
     GLAxis::getInstance()->init();
 
     // frame update

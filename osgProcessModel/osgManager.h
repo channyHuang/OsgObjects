@@ -4,7 +4,6 @@
 #include <mutex>
 
 #include "commonOsg/osgManagerBase.h"
-#include "commonOsg/commonOsg.h"
 
 class OsgManager: public OsgManagerBase {
 public:
@@ -22,9 +21,7 @@ public:
 	void pcd2obj(const std::string& sPath, const std::string& sOutPath);
 	void combineAllObj(const std::string& sPath, std::string sOutPath, std::string sOutName);
 	void transformObj(const std::string& sPath, std::string sPoseName, std::string sOutPath = "");
-	void switchScene();
 	void clear();
-	void setNormalMap(osg::ref_ptr<osg::Node> geomNode, osg::ref_ptr<osgShadow::ShadowedScene> shadowedScene);
 
 public:
 	bool bReload = true;
@@ -40,7 +37,6 @@ private:
 
 	osg::ref_ptr<osg::Group> root = nullptr;
 	osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-	osg::ref_ptr<osg::Switch> sceneSwitch;
 	osg::BoundingSphere bs;
 
 	bool bFirstTime = false;

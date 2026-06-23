@@ -30,6 +30,22 @@ osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBa
 
     osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
 
+	// shader
+	// osg::ref_ptr<osg::Program> program = new osg::Program;
+	// program->addShader(osgDB::readRefShaderFile(osg::Shader::VERTEX, "vshader_demo.glsl"));
+	// program->addShader(osgDB::readRefShaderFile(osg::Shader::FRAGMENT, "fshader_demo.glsl"));
+	// osg::ref_ptr<osg::StateSet> ss = pGeom->getOrCreateStateSet();
+	// ss->setAttribute(program);
+	// // uniform
+	// osg::Uniform* mvpUniform = ss->getOrCreateUniform("mvpMat", osg::Uniform::FLOAT_MAT4);
+	// mvpUniform->setUpdateCallback(new MVPCallback(pViewer->getCamera()));
+	// osg::Uniform* viewUni = ss->getOrCreateUniform("viewMatInv", osg::Uniform::FLOAT_MAT4);
+	// viewUni->setUpdateCallback(new ViewCallback(pViewer->getCamera()));
+	// osg::Uniform* lightPosUni = ss->getOrCreateUniform("lightPos", osg::Uniform::FLOAT_VEC3);
+	// lightPosUni->setUpdateCallback(new LightPosCallback(pViewer->getCamera()));
+	// ss->setTextureAttributeAndModes(0, createTexture("d:/osgfile/obj/textured_output.bmp"));
+	// ss->addUniform(new osg::Uniform("textureMap", 0));
+
 	osg::ref_ptr<osg::Vec3Array> vertex = new osg::Vec3Array();
 	osg::ref_ptr<osg::Vec3Array> normal = new osg::Vec3Array();
 	osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array();
@@ -65,8 +81,32 @@ osg::ref_ptr<osg::Geometry> getObjTinyobj(const char* pFileName, const char* pBa
 	pGeom->setNormalArray(normal);
 	pGeom->setTexCoordArray(0, texcoords);
 
+	// in 
+	// program->addBindAttribLocation("ivertex", 1);
+	// program->addBindAttribLocation("inormal", 2);
+	// program->addBindAttribLocation("itexcoord", 3);
+	// pGeom->setVertexAttribArray(1, vertex, osg::Array::Binding::BIND_PER_VERTEX);
+	// if (normal->size() > 0) {
+	// 	pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_PER_VERTEX);
+	// }
+	// else {
+	// 	normal->push_back(osg::Vec3(0, 1, 0));
+	// 	pGeom->setVertexAttribArray(2, normal, osg::Array::Binding::BIND_OVERALL);
+	// }
+	// pGeom->setVertexAttribArray(3, texcoords, osg::Array::Binding::BIND_PER_VERTEX);
+
 	pGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES, 0, vertex->size()));
-	return pGeom;	
+	
+	osg::Group* pGroup = dynamic_cast<osg::Group*>(pViewer->getSceneData());
+	if (pGroup) {
+		pGroup->addChild(pGeom);
+	}
+	if (false) { // show wireframe
+		osg::ref_ptr<osg::Geometry> geomWireframe = new osg::Geometry(*pGeom.get(), osg::CopyOp::SHALLOW_COPY);
+		setWireFrame(geomWireframe->getOrCreateStateSet(), ShowType::SHOW_WIREFRAME);
+	}
+	pGeom->dirtyGLObjects();
+	return pGeom.release();	
 }
 
 void getGlslObj(osg::ref_ptr<osg::Geometry> pGeom, osgViewer::Viewer* pViewer) {

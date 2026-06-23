@@ -5,8 +5,9 @@
 #include <string>
 #include <memory>
 
-#include "shader.h"
+#include "shader_m.h"
 #include "CameraManager.h"
+#include "shader.h"
 
 class GLAxis {
 public:
@@ -28,7 +29,7 @@ public:
     void init() {
         std::string vertex_shader = std::string( g_sGlslPath + "/glsl/points_shader_rgb.vs" );
         std::string fragment_shader = std::string( g_sGlslPath + "/glsl/points_shader_rgb.fs" );
-        m_cShader = std::make_shared<Shader>(vertex_shader, fragment_shader);
+        m_cShader = std::make_shared<Shader>(vertex_shader.c_str(), fragment_shader.c_str());
 
         initPts();
         initBuffer();
@@ -72,29 +73,12 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
 
-        // Eigen::Matrix< double, 4, 4 > proj_mat = Eigen::Matrix< double, 4, 4 >::Identity();
-        // Eigen::Matrix< double, 4, 4 > pose_mat = Eigen::Matrix< double, 4, 4 >::Identity();
-        // glm::mat4 projection_mul_view = eigen2glm(proj_mat) * eigen2glm(pose_mat);
         glm::mat4 projection_mul_view = CameraManager::getInstance()->m_glmProjectionMat * eigen2glm(CameraManager::getInstance()->m_camera_pose_mat44_inverse);
-        // for (int i = 0; i < 4; ++i) {
-        //     for (int j = 0; j < 4; ++j) {
-        //         std::cout << projection_mul_view[i][j] << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        // std::cout << "===================" << std::endl;
-        // for (int i = 0; i < 4; ++i) {
-        //     for (int j = 0; j < 4; ++j) {
-        //         std::cout << CameraManager::getInstance()->m_camera_pose_mat44_inverse(i, j) << " ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        // std::cout << "*******************" << std::endl;
 
         m_cShader->use();
-        m_cShader->setUniformFloat( "pointAlpha", 1.0 );
-        m_cShader->setUniformFloat( "pointSize", 10 );
-        m_cShader->setUniformMat4( "projection_mul_view", projection_mul_view);
+        m_cShader->setFloat( "pointAlpha", 1.0 );
+        m_cShader->setFloat( "pointSize", 10 );
+        m_cShader->setMat4( "projection_mul_view", projection_mul_view);
 
         glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
         glPointSize(10);
