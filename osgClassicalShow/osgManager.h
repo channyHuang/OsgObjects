@@ -30,7 +30,7 @@ public:
 	void showBoxWithTexture();
 	void showBoxWithMultiTexture();
 	void showBoxWithRightTexture();
-
+	void showBoxWithCubeMap();
 	
 protected:
 	static OsgManager* m_pInstance;

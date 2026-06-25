@@ -17,27 +17,33 @@ OsgManager::~OsgManager() {
 
 void OsgManager::showBoxWithTexture() {
 	HGVertex hv;
-	osg::Node *pNode = hv.showBoxWithTexture();
+	osg::ref_ptr<osg::Node> pNode = hv.showBoxWithTexture();
 	m_pSceneSwitcher->addChild(pNode);
 
-	osg::LightSource *pLight = hv.light();
+	osg::ref_ptr<osg::LightSource> pLight = hv.light();
 	m_pRootGeomDistance->addChild(pLight);
 }
 
 void OsgManager::showBoxWithMultiTexture() {
 	HGVertex hv;
-	osg::Node *pNode = hv.showBoxWithMultiTexture();
+	osg::ref_ptr<osg::Node> pNode = hv.showBoxWithMultiTexture();
 	m_pSceneSwitcher->addChild(pNode);
 
-	osg::LightSource *pLight = hv.light();
+	osg::ref_ptr<osg::LightSource> pLight = hv.light();
 	m_pRootGeomDistance->addChild(pLight);
 }
 
 void OsgManager::showBoxWithRightTexture() {
 	HGVertex hv;
-	osg::Node *pNode = hv.showBoxWithRightTexture();
+	osg::ref_ptr<osg::Node> pNode = hv.showBoxWithRightTexture();
 	m_pSceneSwitcher->addChild(pNode);
 
-	osg::LightSource *pLight = hv.light();
+	osg::ref_ptr<osg::LightSource> pLight = hv.light();
 	m_pRootGeomDistance->addChild(pLight);
+}
+
+void OsgManager::showBoxWithCubeMap() {
+	HGVertex hv;
+	osg::ref_ptr<osg::Node> pNode = hv.showBoxWithCubeMap();
+	m_pSceneSwitcher->addChild(pNode);
 }

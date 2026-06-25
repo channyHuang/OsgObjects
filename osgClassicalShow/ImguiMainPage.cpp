@@ -53,6 +53,9 @@ void ImguiMainPage::drawUi() {
             if (ImGui::Button("show box with right texture")) {
                 OsgManager::getInstance()->showBoxWithRightTexture();
             }
+            if (ImGui::Button("show box with cubmap ")) {
+                OsgManager::getInstance()->showBoxWithCubeMap();
+            }
 
             ImGui::EndTabItem();
         }

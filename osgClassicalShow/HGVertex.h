@@ -17,10 +17,11 @@ class HGVertex {
 public:
     HGVertex();
 
-    osg::Node* showBoxWithTexture();
-    osg::Node* showBoxWithMultiTexture();
-    osg::Node* showBoxWithRightTexture();
-    osg::LightSource* light();
+    osg::ref_ptr<osg::Node> showBoxWithTexture();
+    osg::ref_ptr<osg::Node> showBoxWithMultiTexture();
+    osg::ref_ptr<osg::Node> showBoxWithRightTexture();
+    osg::ref_ptr<osg::Node> showBoxWithCubeMap();
+    osg::ref_ptr<osg::LightSource> light();
 
 public:
     osg::ref_ptr<osg::Vec3Array> m_pVertices;

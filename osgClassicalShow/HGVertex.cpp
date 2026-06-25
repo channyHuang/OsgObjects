@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include <osg/TextureCubeMap>
+
 HGVertex::HGVertex() {}
 
 void generateCubeVertex(osg::ref_ptr<osg::Vec3Array> &pVertices) {
@@ -59,10 +61,10 @@ void generateCubeTexcoord(osg::ref_ptr<osg::Vec2Array> &pTexcoord) {
     }
 }
 
-osg::Texture2D* generateTexture(const std::string &sTextureFile) {
+osg::ref_ptr<osg::Texture2D> generateTexture(const std::string &sTextureFile) {
     osg::ref_ptr<osg::Image> pImage;
     if (!sTextureFile.empty() && (pImage = osgDB::readRefImageFile(sTextureFile)) != nullptr) {
-        osg::Texture2D *pTexture = new osg::Texture2D;
+        osg::ref_ptr<osg::Texture2D> pTexture = new osg::Texture2D;
         pTexture->setImage(pImage.get());
 
         pTexture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
@@ -77,23 +79,23 @@ osg::Texture2D* generateTexture(const std::string &sTextureFile) {
     return nullptr;
 }
 
-osg::Material* generateMaterial() {
+osg::ref_ptr<osg::Material> generateMaterial() {
     osg::ref_ptr<osg::Material> material = new osg::Material;
     material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.5f, 0.5f, 0.5f, 1.0f));
     material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.5f, 0.5f, 0.5f, 1.0f));
     material->setShininess(osg::Material::FRONT_AND_BACK, 32.0f);
-    return material.release();
+    return material;
 }
 
-osg::Node* HGVertex::showBoxWithTexture() {
+osg::ref_ptr<osg::Node> HGVertex::showBoxWithTexture() {
     // cub verteices
     generateCubeVertex(m_pVertices);
     generateCubeFace(m_pTriangles);
     generateCubeTexcoord(m_pTexcoords);
     
     //geom
-    osg::Geometry* pGeom  =  new osg::Geometry;
+    osg::ref_ptr<osg::Geometry> pGeom  =  new osg::Geometry;
     pGeom->setVertexArray(m_pVertices.get());
     if (m_pTriangles.valid() && m_pTriangles->size() > 0) {
         pGeom->addPrimitiveSet(m_pTriangles.get());
@@ -102,12 +104,7 @@ osg::Node* HGVertex::showBoxWithTexture() {
         pGeom->setTexCoordArray(0, m_pTexcoords.get());
     }
 
-    osg::ref_ptr<osg::UIntArray> texCoordIndices = new osg::UIntArray;
-    for (size_t i = 0; i < m_pTexcoords->size(); ++i) {
-        texCoordIndices->push_back(i);
-    }
-
-    osg::StateSet *pStateset = pGeom->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> pStateset = pGeom->getOrCreateStateSet();
     pStateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
     pStateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 
@@ -129,13 +126,13 @@ osg::Node* HGVertex::showBoxWithTexture() {
     if (pMaterial != nullptr) 
         pStateset->setAttributeAndModes(pMaterial, osg::StateAttribute::ON);
 
-    osg::Geode* pGeode = new osg::Geode;
+    osg::ref_ptr<osg::Geode> pGeode = new osg::Geode;
     pGeode->addDrawable(pGeom);
 
     return pGeode;
 }
 
-osg::LightSource* HGVertex::light() {
+osg::ref_ptr<osg::LightSource> HGVertex::light() {
     osg::ref_ptr<osg::Light> light = new osg::Light;
     light->setLightNum(0);
     light->setPosition(osg::Vec4(-1.0f, -1.0f, -1.0f, 0.0f)); 
@@ -153,12 +150,12 @@ osg::LightSource* HGVertex::light() {
 
 // ----------------------------------------------------------------------------------------------------
 
-osg::Geometry* generateGeometry(osg::ref_ptr<osg::Vec3Array> pVertices,
+osg::ref_ptr<osg::Geometry> generateGeometry(osg::ref_ptr<osg::Vec3Array> pVertices,
                                 osg::ref_ptr<osg::DrawElementsUInt> pTriangles, 
                                 osg::ref_ptr<osg::Vec2Array> pTexcoords,
                                 size_t nIndex = 0,
                                 const std::string &sTexFile = "../data/texture/Marble.bmp") {
-    osg::Geometry* pGeom = new osg::Geometry;
+    osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
     pGeom->setVertexArray(pVertices.get());
     if (pTriangles.valid() && pTriangles->size() > 0) {
         pGeom->addPrimitiveSet(pTriangles.get());
@@ -167,7 +164,7 @@ osg::Geometry* generateGeometry(osg::ref_ptr<osg::Vec3Array> pVertices,
         pGeom->setTexCoordArray(nIndex, pTexcoords.get());
     }
 
-    osg::StateSet *pStateset = pGeom->getOrCreateStateSet();
+    osg::ref_ptr<osg::StateSet> pStateset = pGeom->getOrCreateStateSet();
     pStateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
     pStateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 
@@ -185,7 +182,7 @@ osg::Geometry* generateGeometry(osg::ref_ptr<osg::Vec3Array> pVertices,
 }
 
 
-osg::Node* HGVertex::showBoxWithMultiTexture() {
+osg::ref_ptr<osg::Node> HGVertex::showBoxWithMultiTexture() {
     generateCubeVertex(m_pVertices);
     osg::ref_ptr<osg::DrawElementsUInt> pTriangles1, pTriangles2;
     generateCubeFace(pTriangles1, 0, 18);
@@ -193,10 +190,10 @@ osg::Node* HGVertex::showBoxWithMultiTexture() {
     osg::ref_ptr<osg::Vec2Array> pTexcoords1, pTexcoords2;
     generateCubeTexcoord(pTexcoords1);
     generateCubeTexcoord(pTexcoords2);
-    osg::Geometry* pGeom1 = generateGeometry(m_pVertices, pTriangles1, pTexcoords1);
-    osg::Geometry* pGeom2 = generateGeometry(m_pVertices, pTriangles2, pTexcoords2, 1, "../data/texture/Wood.bmp");
+    osg::ref_ptr<osg::Geometry> pGeom1 = generateGeometry(m_pVertices, pTriangles1, pTexcoords1);
+    osg::ref_ptr<osg::Geometry> pGeom2 = generateGeometry(m_pVertices, pTriangles2, pTexcoords2, 1, "../data/texture/Wood.bmp");
 
-    osg::Geode* geode = new osg::Geode;
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
     geode->addDrawable(pGeom1);
     geode->addDrawable(pGeom2);
 
@@ -223,7 +220,7 @@ void generateCubeTexcoordQuat(osg::ref_ptr<osg::Vec2Array> &pTexcoord, osg::ref_
     }
 }
 
-osg::Node *HGVertex::showBoxWithRightTexture() {
+osg::ref_ptr<osg::Node> HGVertex::showBoxWithRightTexture() {
     std::vector<std::string> vTexFiles = {"../data/texture/basecolor.bmp", 
                                         "../data/texture/Concrete.bmp", 
                                         "../data/texture/posx.bmp", 
@@ -231,7 +228,7 @@ osg::Node *HGVertex::showBoxWithRightTexture() {
                                         "../data/texture/rockwall.bmp", 
                                         "../data/texture/Wood.bmp"};
 
-    osg::Geode* geode = new osg::Geode;
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 
     generateCubeVertex(m_pVertices);
     for (size_t i = 0; i < 6; ++i) {
@@ -240,10 +237,102 @@ osg::Node *HGVertex::showBoxWithRightTexture() {
         osg::ref_ptr<osg::Vec2Array> pTexcoords;
         generateCubeTexcoordQuat(pTexcoords, pTriangles);
 
-        osg::Geometry* pGeom = generateGeometry(m_pVertices, pTriangles, pTexcoords, 0, vTexFiles[i]);
+        osg::ref_ptr<osg::Geometry> pGeom = generateGeometry(m_pVertices, pTriangles, pTexcoords, 0, vTexFiles[i]);
 
         geode->addDrawable(pGeom);
     }
     return geode;
 
+}
+
+osg::ref_ptr<osg::TextureCubeMap> readCubeMap1() {
+	osg::ref_ptr<osg::TextureCubeMap> pCubeMap = new osg::TextureCubeMap;
+#define CUBEMAP_FILENAME(face) "../data/texture/" #face ".bmp"
+
+	osg::ref_ptr<osg::Image>imagePosX = osgDB::readRefImageFile(CUBEMAP_FILENAME(posx));
+	osg::ref_ptr<osg::Image>imageNegX = osgDB::readRefImageFile(CUBEMAP_FILENAME(negx));
+	osg::ref_ptr<osg::Image>imagePosY = osgDB::readRefImageFile(CUBEMAP_FILENAME(posy));
+	osg::ref_ptr<osg::Image>imageNegY = osgDB::readRefImageFile(CUBEMAP_FILENAME(negy));
+	osg::ref_ptr<osg::Image>imagePosZ = osgDB::readRefImageFile(CUBEMAP_FILENAME(posz));
+	osg::ref_ptr<osg::Image>imageNegZ = osgDB::readRefImageFile(CUBEMAP_FILENAME(negz));
+
+	if (imagePosX && imageNegX && imagePosY && imageNegY && imagePosZ && imageNegZ) {
+		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_X, imagePosX);
+		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_X, imageNegX);
+		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_Y, imagePosY);
+		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_Y, imageNegY);
+		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_Z, imagePosZ);
+		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_Z, imageNegZ);
+
+		pCubeMap->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+		pCubeMap->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+		pCubeMap->setWrap(osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE);
+
+        pCubeMap->setUseHardwareMipMapGeneration(true);
+
+		pCubeMap->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
+		pCubeMap->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
+	} else {
+		printf("Error: skybox could not find background textures\n");
+	}
+
+	return pCubeMap;
+}
+
+osg::ref_ptr<osg::Geometry> createCubeGeometryForSkybox() {
+    osg::ref_ptr<osg::Geometry> geom = new osg::Geometry;
+    osg::Vec3 v[8] = {
+        {-1, -1, -1}, { 1, -1, -1}, { 1, -1,  1}, {-1, -1,  1}, 
+        {-1,  1, -1}, { 1,  1, -1}, { 1,  1,  1}, {-1,  1,  1}  
+    };
+    
+    unsigned int indices[36] = {
+        1, 5, 2,  2, 5, 6,
+        0, 3, 4,  4, 3, 7,
+        4, 7, 5,  5, 7, 6,
+        0, 1, 3,  3, 1, 2,
+        3, 2, 7,  7, 2, 6,
+        0, 4, 1,  1, 4, 5
+    };
+    
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array(8, v);
+    osg::ref_ptr<osg::Vec3Array> texCoords = new osg::Vec3Array;
+    
+    for (int i = 0; i < 8; ++i) {
+        texCoords->push_back(v[i]); 
+    }
+    
+    geom->setVertexArray(vertices);
+    geom->setTexCoordArray(0, texCoords);
+    
+    osg::ref_ptr<osg::DrawElementsUInt> elements = new osg::DrawElementsUInt(GL_TRIANGLES, 36, indices);
+    geom->addPrimitiveSet(elements);
+    
+    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+    for (int i = 0; i < 8; ++i) normals->push_back(v[i]);
+    geom->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
+
+    return geom;
+}
+
+osg::ref_ptr<osg::Node> HGVertex::showBoxWithCubeMap() {
+    osg::ref_ptr<osg::Geode> pGeode = new osg::Geode;
+
+    osg::ref_ptr<osg::Geometry> pGeom = createCubeGeometryForSkybox();
+    osg::ref_ptr<osg::StateSet> pStateset = pGeom->getOrCreateStateSet();
+
+    osg::ref_ptr<osg::TextureCubeMap> pSkyMap = readCubeMap1();
+    pStateset->setTextureAttributeAndModes(0, pSkyMap, osg::StateAttribute::ON);
+
+    // add shader
+    osg::ref_ptr<osg::Program> program = new osg::Program;
+    program->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX, "../data/shaders/skybox.vert"));
+    program->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT, "../data/shaders/skybox.frag"));
+    pStateset->setAttributeAndModes(program, osg::StateAttribute::ON);
+
+    osg::ref_ptr<osg::Uniform> skyboxSampler = new osg::Uniform("skybox", 0);
+    pStateset->addUniform(skyboxSampler);
+
+    pGeode->addChild(pGeom);
+    return pGeode;
 }
