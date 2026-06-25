@@ -3,7 +3,7 @@
 #include "voxels/common_enum.h"
 #include "generator/voxel_mesher.h"
 
-TerrainManager *TerrainManager::instance = nullptr;
+std::unique_ptr<TerrainManager> TerrainManager::m_pInstance = nullptr;
 
 TerrainManager::TerrainManager() {
     _map = VoxelMap::getInstance();
@@ -12,10 +12,6 @@ TerrainManager::TerrainManager() {
 }
 
 TerrainManager::~TerrainManager() {
-    if (instance != nullptr) {
-        delete instance;
-        instance = nullptr;
-    }
     if (_block_updater != nullptr) {
         delete _block_updater;
         _block_updater = nullptr;
@@ -27,6 +23,7 @@ void TerrainManager::make_block_dirty(const Vector3i& bpos) {
     if (block == nullptr) {
     } else if (block->get_mesh_state() != VoxelBlock::MESH_NEED_UPDATE) {
         block->set_mesh_state(VoxelBlock::MESH_NEED_UPDATE);
+        std::unique_lock<std::mutex> locker(m_mutexUpdate);
         _blocks_pending_update.insert(bpos);
     }
 }
@@ -51,6 +48,7 @@ void TerrainManager::make_area_dirty(const Boxi& box) {
 }
 
 void TerrainManager::_notification(Notification_Event p_what) {
+    spdlog::get("Terrain")->debug("got notify {}", (int)p_what);
     switch (p_what) {
     case Notification_Enter:
         if (_block_updater == nullptr) {
@@ -69,16 +67,23 @@ void TerrainManager::_notification(Notification_Event p_what) {
 
 void TerrainManager::_process() {
     // send update request
-#ifdef DEBUG_INFO
-    if (_blocks_pending_update.size()) 
-        std::cout << __FUNCTION__ << " in " << _blocks_pending_update.size() << std::endl;
-#endif
     {
-        Input input;
+        spdlog::get("Terrain")->debug("TerrainManager::_process {} blocks waiting to udpate", _blocks_pending_update.size());
 
+        std::unique_lock<std::mutex> locker(m_mutexUpdate);
+
+        Input input;
         for (auto itr = _blocks_pending_update.begin(); itr != _blocks_pending_update.end(); itr++) {
             Vector3i block_pos = (*itr);
+            if (_map == nullptr) {
+                spdlog::get("Terrain")->debug("TerrainManager::_process get map nullptr");
+                continue;
+            }
             VoxelBlock *block = _map->get_block(block_pos);
+            if (block == nullptr) {
+                spdlog::get("Terrain")->debug("TerrainManager::_process get block nullptr");
+                continue;
+            }
 
             std::shared_ptr<VoxelBuffer> nbuffer = std::make_shared<VoxelBuffer>();
 
@@ -105,30 +110,20 @@ void TerrainManager::_process() {
 
     // receive updated mesh
     {
-
         Output output;
         _block_updater->pop(output);
+    
+        spdlog::get("Terrain")->debug("TerrainManager::_process {} blocks got outputs", output.blocks.size());
 
-#ifdef DEBUG_INFO
-        if (output.blocks.size())
-            std::cout << __FUNCTION__ << " out " << output.blocks.size() << std::endl;
-#endif
-        sets.clear();
         for (int i = 0; i < output.blocks.size(); ++i) {
             const OutputBlock &data = output.blocks[i];
             for (int j = 0; j < data.smooth_surfaces.surfaces.size(); ++j) {
-
                 Arrays surface = data.smooth_surfaces.surfaces[j];
                 if (surface.empty()) {
                     continue;
                 }
 
                 sigGenerateMeshSuc(surface, output.blocks[i].position);
-
-                auto itr = sets.find(output.blocks[i].position);
-                if (itr == sets.end()) sets.insert(output.blocks[i].position);
-                else std::cout << __FUNCTION__ << " out replete " << output.blocks[i].position.toString().c_str() << std::endl;
-
                 break;
             }
         }

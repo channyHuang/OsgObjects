@@ -1,22 +1,24 @@
 #pragma once
 
-#include "nativefiledialog/nfd.h"
-
-#include "OsgImguiHandler.h"
-#include "commonFunc/signalSlots.h"
+#include <chrono>
 
 #include <osgViewer/Viewer>
 #include <osg/ref_ptr>
 
-#include "commonFunc.h"
-#include "commonDef.h"
+#include "commonFunc/signalSlots.h"
+#include "nativefiledialog/nfd.h"
+#include "commonOsg/OsgImguiHandler.h"
+#include "commonOsg/osgPickHandler.h"
+#include "commonOsg/osgCameraHandler.h"
 #include "osgManager.h"
+
+#include "generator/terraingenerator_roblox.h"
 
 
 class ImguiMainPage : public OsgImGuiHandler {
 public:
     ImguiMainPage();
-    ImguiMainPage(osgViewer::Viewer& viewer);
+    ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler);
     ~ImguiMainPage();
 
 protected:
@@ -24,21 +26,22 @@ protected:
 
 // signals
     SignalSlot::Signal<void(Notification_Event)> notify;
-
+    
 private:
     const int nMaxFileNameLength = 128;
 
-    osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
-    clock_t startTime; // ms
+    osg::ref_ptr<osgViewer::Viewer> pViewer = nullptr;
+    osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
+    PickHandler* m_pPicker = nullptr;
+    
+    std::chrono::time_point<std::chrono::steady_clock> stLastAutoUpdateTime; // ms
     
     Vector3 vCenter = Vector3(0);
 
-    char* cFileName;
+    char* pFileName;
 
     float value[3] = { 0 };
     int nNumBalls = 1;
 
-    clock_t frameTime;
-    // collaborate
-    bool bCollaborative = false;
+    TerrainGenerator_Roblox::BiomesParam m_stBiomeParams;
 };

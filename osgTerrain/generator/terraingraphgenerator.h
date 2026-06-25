@@ -17,6 +17,7 @@
 #include "commonGeometry/voronoi.h"
 #include "commonGeometry/nodemap.h"
 #include "commonGeometry/poissonsampler.h"
+#include "commonGeometry/vertexmap.h"
 
 using namespace Graph_Geometry;
 

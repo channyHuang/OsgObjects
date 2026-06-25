@@ -1,5 +1,8 @@
 #include "terraingenerator_roblox.h"
 
+#include "spdlog/spdlog.h"
+#include "omp.h"
+
 std::shared_ptr<TerrainGenerator_Roblox> TerrainGenerator_Roblox::pInstance_ = nullptr;
 
 std::shared_ptr<TerrainGenerator_Roblox> TerrainGenerator_Roblox::getInstance() {
@@ -25,37 +28,41 @@ void TerrainGenerator_Roblox::initData() {
    cperlin_.load();
 }
 
-void TerrainGenerator_Roblox::genTotallyFlat(VoxelBrush* pVoxelTool, int max_lod) {
-   float h = std::max(1.0f, _range.vSize.y * 0.5f);
-   Box cBox(_range.vStart, _range.vStart + Vector3(_range.vSize.x, h, _range.vSize.z));
+void TerrainGenerator_Roblox::genTotallyFlat(std::shared_ptr<VoxelBrush> pVoxelTool, int max_lod) {
+    if (pVoxelTool == nullptr) return;
+    spdlog::get("Terrain")->info("genTotallyFlat");
 
-   Vector3i &&vmin_pos = MathFuncs::vector3FloorOrCeil(_range.vBox.vMin, true);
-   Vector3i &&vmax_pos = MathFuncs::vector3FloorOrCeil(_range.vBox.vMax, false);
+    float h = std::max(1.0f, _range.vSize.y * 0.5f);
+    Box cBox(_range.vStart, _range.vStart + Vector3(_range.vSize.x, h, _range.vSize.z));
 
-   float fnew_sdf = 0.f, brushOccupancy = 1.f;
-   MaterialType ematerial_origin = MaterialType::AIR;
-   Vector3 pos = Vector3(0), selectionSize = cBox.vMax - cBox.vMin, vOutSize, cellVector;
-   Vector3 vhalf_selection_size = selectionSize * .5f;
+    Vector3i &&vmin_pos = MathFuncs::vector3FloorOrCeil(_range.vBox.vMin, true);
+    Vector3i &&vmax_pos = MathFuncs::vector3FloorOrCeil(_range.vBox.vMax, false);
 
-   for (pos.x = vmin_pos.x; pos.x <= vmax_pos.x; ++pos.x) {
-       for (pos.z = vmin_pos.z; pos.z <= vmax_pos.z; ++pos.z) {
-           for (pos.y = vmin_pos.y; pos.y <= vmax_pos.y; ++pos.y) {
-               cellVector = pos * fresolution_ - cBox.getCenter();
-               vOutSize.x = 1.f - std::max(0.f, std::abs(cellVector.x) - vhalf_selection_size.x);
-               vOutSize.y = 1.f - std::max(0.f, std::abs(cellVector.y) - vhalf_selection_size.y);
-               vOutSize.z = 1.f - std::max(0.f, std::abs(cellVector.z) - vhalf_selection_size.z);
-               brushOccupancy = vOutSize.x * vOutSize.y * vOutSize.z;
-               fnew_sdf = translateSdfAndOccupancy(brushOccupancy, false);
-               if (fnew_sdf < 2.f) {
-                   pVoxelTool->set_voxel_f(pos, fnew_sdf, VoxelBuffer::CHANNEL_SDF);
-                   if (fnew_sdf <= 0) pVoxelTool->set_voxel(pos, 1, VoxelBuffer::CHANNEL_TYPE);
-               }
+    float fnew_sdf = 0.f, brushOccupancy = 1.f;
+    MaterialType ematerial_origin = MaterialType::AIR;
+    Vector3 pos = Vector3(0), selectionSize = cBox.vMax - cBox.vMin, vOutSize, cellVector;
+    Vector3 vhalf_selection_size = selectionSize * .5f;
 
-               //pVoxelTool->set_voxel_f(pos, -1.f, VoxelBuffer::CHANNEL_SDF);
-               //pVoxelTool->set_voxel(pos, GRASSLAND, VoxelBuffer::CHANNEL_TYPE);
+    int nOMPMaxThread = omp_get_max_threads(); 
+    //    #pragma omp parallel for num_threads(1)
+    for (pos.x = vmin_pos.x; pos.x <= vmax_pos.x; ++pos.x) {
+        for (pos.z = vmin_pos.z; pos.z <= vmax_pos.z; ++pos.z) {
+            for (pos.y = vmin_pos.y; pos.y <= vmax_pos.y; ++pos.y) {
+                cellVector = pos * fresolution_ - cBox.getCenter();
+                vOutSize.x = 1.f - std::max(0.f, std::abs(cellVector.x) - vhalf_selection_size.x);
+                vOutSize.y = 1.f - std::max(0.f, std::abs(cellVector.y) - vhalf_selection_size.y);
+                vOutSize.z = 1.f - std::max(0.f, std::abs(cellVector.z) - vhalf_selection_size.z);
+                brushOccupancy = vOutSize.x * vOutSize.y * vOutSize.z;
+                fnew_sdf = translateSdfAndOccupancy(brushOccupancy, false);
+                if (fnew_sdf < 2.f) {
+                    pVoxelTool->set_voxel_f(pos, fnew_sdf, VoxelBuffer::CHANNEL_SDF);
+                    if (fnew_sdf <= 0) pVoxelTool->set_voxel(pos, MaterialType::GRASSLAND, VoxelBuffer::CHANNEL_TYPE);
+                }
            }
        }
    }
+
+   spdlog::get("Terrain")->info("genTotallyFlat end");
 }
 
 //void TerrainGenerator_Roblox::genTotallyFlat(VoxelToolTerrain* pVoxelTool, int max_lod) {
@@ -326,7 +333,7 @@ float TerrainGenerator_Roblox::findBiomeTransitionValue(TerrainBiomes biome, flo
    return averageValue * (1 - weight) + value * weight;
 }
 
-void TerrainGenerator_Roblox::generateTerrainByBiomes(VoxelBrush* pBrush, BiomesParam& biomeParams, int max_lod) {
+void TerrainGenerator_Roblox::generateTerrainByBiomes(std::shared_ptr<VoxelBrush> pBrush, BiomesParam& biomeParams, int max_lod) {
     if (!biomeParams.use_biomes) {
         //terrain version 1.0
         genTotallyFlat(pBrush);

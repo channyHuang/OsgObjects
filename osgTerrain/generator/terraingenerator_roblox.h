@@ -7,11 +7,11 @@
 #include <fstream>
 #include <queue>
 
+#include "commonMath/funcs.h"
 #include "commonMath/vector3.h"
 #include "commonMath/vector3i.h"
 //#include "terrains/voxeltoolterrain.h"
 #include "voxels/common_enum.h"
-#include "commonMath/funcs.h"
 #include "terrains/voxelBrush.h"
 
 class TerrainSimplePerlin {
@@ -107,7 +107,7 @@ public:
     struct BiomesParam
     {
         int biomes_be_checked = 3; // checked types of biomes
-        bool use_biomes = true; // if use auto biomes or just generate flat
+        bool use_biomes = false; // if use auto biomes or just generate flat
         int biome_size = 50; // area of each biome
         bool generate_caves = false;
         std::string seed = "618033988"; // biome seed
@@ -131,8 +131,8 @@ public:
 
     static std::shared_ptr<TerrainGenerator_Roblox> getInstance();
 
-    void setRange(const Vector3& vStart, const Vector3i& vSize) {
-        _range.vStart = vStart - vSize.to_vec3() * 0.5f;
+    void setRange(const Vector3& vCenter, const Vector3i& vSize) {
+        _range.vStart = vCenter - vSize.to_vec3() * 0.5f;
         _range.vSize = vSize;
         _range.vBox = Box(_range.vStart, _range.vStart + _range.vSize.to_vec3());
     }
@@ -158,8 +158,8 @@ public:
     //generate terrain with biomes
     //void genTotallyFlat(VoxelToolTerrain* pVoxelTool, int max_lod = 0);
     //void generateTerrainByBiomes(VoxelToolTerrain* pVoxelTool, BiomesParam& biomeParams, int max_lod = 0);
-    void genTotallyFlat(VoxelBrush* pVoxelTool, int max_lod = 0);
-    void generateTerrainByBiomes(VoxelBrush* pVoxelTool, BiomesParam& biomeParams, int max_lod = 0);
+    void genTotallyFlat(std::shared_ptr<VoxelBrush> pVoxelTool, int max_lod = 0);
+    void generateTerrainByBiomes(std::shared_ptr<VoxelBrush> pVoxelTool, BiomesParam& biomeParams, int max_lod = 0);
 
     struct PointDistNoiseInfo {
         float fdist_, fbiome_noise_;
@@ -174,7 +174,7 @@ public:
 
 public:
     struct {
-        Vector3i vSize = Vector3i(100);
+        Vector3i vSize = Vector3i(40);
         Vector3 vStart = Vector3(0);
         Box vBox = Box(Vector3(-10.f), Vector3(10.f));
     } _range;

@@ -4,6 +4,7 @@
 
 #include "commonMath/vector3i.h"
 #include "commonMath/vector3.h"
+
 #include "voxels/voxelBuffer.h"
 
 //#define VOXEL_DEBUG_LOD_MATERIALS

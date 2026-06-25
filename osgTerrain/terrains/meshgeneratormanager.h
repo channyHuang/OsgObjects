@@ -8,15 +8,14 @@
 #include <mutex>
 #include <unordered_set>
 
+#include "spdlog/spdlog.h"
+
 #include "commonFunc/threadPool.h"
 #include "commonFunc/signalSlots.h"
-#include "generator/naiveSurfaceNets/voxel_mesher_surfacenet.h"
+
 #include "terrains/commonStruct.h"
 
-#define DEBUG_INFO 1
-
-class MeshGeneratorManager
-{
+class MeshGeneratorManager {
 public:
     explicit MeshGeneratorManager();
     ~MeshGeneratorManager();
@@ -31,7 +30,7 @@ public:
     void process();
     void sltFinish(OutputBlock output);
     
-    // signal
+// signal
     SignalSlot::Signal<void(OutputBlock)> sigFinish;
 
 private:
@@ -39,7 +38,7 @@ private:
     int index = 0;
     int _minimum_padding = 2;
     int _maximum_padding = 2;
-    std::mutex mutex;
+    std::mutex m_mutexOutput;
 
     ThreadPool pool;
 

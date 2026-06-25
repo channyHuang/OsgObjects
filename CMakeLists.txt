@@ -21,6 +21,7 @@ add_subdirectory(${OUTER_DIR}/commonOsg commonOsg)
 add_subdirectory(${OUTER_DIR}/nativefiledialog nativefiledialog)
 add_subdirectory(${OUTER_DIR}/commonGeometry commonGeometry)
 add_subdirectory(${OUTER_DIR}/xatlas xatlas)
+add_subdirectory(${OUTER_DIR}/commonFunc commonFunc)
 
 
 
@@ -37,7 +38,7 @@ ADD_SUBDIRECTORY(osgReconFrame)
 ADD_SUBDIRECTORY(osgShowFramePose)
 ADD_SUBDIRECTORY(osgProcessModel)
 ADD_SUBDIRECTORY(osgShowObjects)
-#ADD_SUBDIRECTORY(osgTerrain)
+ADD_SUBDIRECTORY(osgTerrain)
 ADD_SUBDIRECTORY(osgUnwrap)
 
 else()

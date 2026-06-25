@@ -3,182 +3,174 @@
 #include "xatlas/xatlas.h"
 //#define DEBUG_SINGLE_BUILD_TIME
 //#define DEBUG_SINGLE_BUILD_MESHS
-    namespace {
-        static const float TRANSITION_CELL_SCALE = 0.25;
-        static const bool MESH_SHARE_POINTS = true;
-        static const bool BMESH_SUPPORT_WATER = true;
+    
+namespace {
+    static const float TRANSITION_CELL_SCALE = 0.25;
+    static const bool g_bMeshSharePoints = true;
+    static const bool g_bMeshSupportWater = false;
 
-        Vector3 get_border_offset(const Vector3 &pos, const int lod_index, const Vector3i &block_size)
+    Vector3 get_border_offset(const Vector3 &pos, const int lod_index, const Vector3i &block_size)
+    {
+        Vector3 delta;
+
+        const float p2k = 1.0f * (1 << lod_index); // 2 ^ lod
+        const float p2mk = 1.f / p2k;     // 2 ^ (-lod)
+
+        const float wk = TRANSITION_CELL_SCALE * p2k; // 2 ^ (lod - 2), if scale is 0.25
+
+        for (unsigned int i = 0; i < 3; ++i)
         {
-            Vector3 delta;
 
-            const float p2k = 1.0f * (1 << lod_index); // 2 ^ lod
-            const float p2mk = 1.f / p2k;     // 2 ^ (-lod)
+            const float p = pos[i];
+            const float s = static_cast<float>(block_size[i]);
 
-            const float wk = TRANSITION_CELL_SCALE * p2k; // 2 ^ (lod - 2), if scale is 0.25
-
-            for (unsigned int i = 0; i < 3; ++i)
+            if (p < p2k)
             {
-
-                const float p = pos[i];
-                const float s = static_cast<float>(block_size[i]);
-
-                if (p < p2k)
-                {
-                    // The vertex is inside the minimum cell.
-                    delta[i] = (1.0f - p2mk * p) * wk;
-                }
-                else if (p > (p2k * (s - 1)))
-                {
-                    // The vertex is inside the maximum cell.
-                    delta[i] = ((p2k * s) - 1.0f - p) * wk;
-                }
+                // The vertex is inside the minimum cell.
+                delta[i] = (1.0f - p2mk * p) * wk;
             }
-
-            return delta;
+            else if (p > (p2k * (s - 1)))
+            {
+                // The vertex is inside the maximum cell.
+                delta[i] = ((p2k * s) - 1.0f - p) * wk;
+            }
         }
 
-        inline Vector3 project_border_offset(const Vector3 &delta, const Vector3 &normal)
-        {
-            return Vector3(
-                (1 - normal.x * normal.x) * delta.x /**/ - normal.y * normal.x * delta.y /*     */ - normal.z * normal.x * delta.z,
-                /**/ -normal.x * normal.y * delta.x + (1 - normal.y * normal.y) * delta.y /*    */ - normal.z * normal.y * delta.z,
-                /**/ -normal.x * normal.z * delta.x /**/ - normal.y * normal.z * delta.y /**/ + (1 - normal.z * normal.z) * delta.z);
-        }
-
-        inline Vector3 get_secondary_position(const Vector3 &primary, const Vector3 &normal, const int lod_index, const Vector3i &block_size)
-        {
-            Vector3 delta = get_border_offset(primary, lod_index, block_size);
-            delta = project_border_offset(delta, normal);
-            return primary + delta;
-        }
-
-        inline float get_normal_angle(const Vector3 &normal1, const Vector3 &normal2) {
-            if (normal1 == Vector3(0) || normal2 == Vector3(0)) return 0.f;
-            float cos_theta = normal1.dot(normal2); // / (normal1.len() * normal2.len());
-            return acos(cos_theta); //[0,pi]
-        }
+        return delta;
     }
 
-    VoxelMesherSurfaceNets::VoxelMesherSurfaceNets()
+    inline Vector3 project_border_offset(const Vector3 &delta, const Vector3 &normal)
     {
-        set_padding(MIN_PADDING, MAX_PADDING);
+        return Vector3(
+            (1 - normal.x * normal.x) * delta.x /**/ - normal.y * normal.x * delta.y /*     */ - normal.z * normal.x * delta.z,
+            /**/ -normal.x * normal.y * delta.x + (1 - normal.y * normal.y) * delta.y /*    */ - normal.z * normal.y * delta.z,
+            /**/ -normal.x * normal.z * delta.x /**/ - normal.y * normal.z * delta.y /**/ + (1 - normal.z * normal.z) * delta.z);
     }
 
-    void VoxelMesherSurfaceNets::build(MeshOutput &output, const MeshInput &input)
+    inline Vector3 get_secondary_position(const Vector3 &primary, const Vector3 &normal, const int lod_index, const Vector3i &block_size)
     {
-        //corresponding to VoxelDataMap._block_size_pow2, which is 4 currently, if input.lod == 4, return all level
-        if (input.lod > _lod_count || input.lod < 0) {
-            return;
+        Vector3 delta = get_border_offset(primary, lod_index, block_size);
+        delta = project_border_offset(delta, normal);
+        return primary + delta;
+    }
+
+    inline float get_normal_angle(const Vector3 &normal1, const Vector3 &normal2) {
+        if (normal1 == Vector3(0) || normal2 == Vector3(0)) return 0.f;
+        float cos_theta = normal1.dot(normal2); // / (normal1.len() * normal2.len());
+        return acos(cos_theta); //[0,pi]
+    }
+}
+
+VoxelMesherSurfaceNets::VoxelMesherSurfaceNets() {
+    set_padding(MIN_PADDING, MAX_PADDING);
+}
+
+void VoxelMesherSurfaceNets::build(MeshOutput &output, const MeshInput &input) {
+    //corresponding to VoxelDataMap._block_size_pow2, which is 4 currently, if input.lod == 4, return all level
+    if (input.lod > _lod_count || input.lod < 0) {
+        printf("build mesh error: lod %d not support\n", input.lod);
+        return;
+    }
+
+    int channel = VoxelBuffer::CHANNEL_SDF;
+    // Initialize dynamic memory:
+    // These vectors are re-used.
+    // We don't know in advance how much geometry we are going to produce.
+    // Once capacity is big enough, no more memory should be allocated
+    clear_output();
+
+    std::shared_ptr<VoxelBuffer> voxels = input.voxels;
+    if (voxels == nullptr) {
+        printf("build mesh error: voxels is nullptr\n");
+        return;
+    }
+    if (g_bMeshSupportWater) {
+        build_internal_with_water(output, voxels, channel, input.lod, input.position);
+    } else {
+        build_internal(output, voxels, channel, input.lod, input.position);
+    }
+
+    if (output.surfaces.size() > 0) {
+        calcUvs(output.surfaces[0]);
+        // outputToObjFile(output.surfaces[0], input.position, false);
+    }
+}
+
+bool VoxelMesherSurfaceNets::calcUvs(Arrays& singleArray) {
+    singleArray.uvs.resize(singleArray.positions.size(), Vector2(rand() / RAND_MAX, rand() / RAND_MAX));
+
+    xatlas::Atlas* atlas = xatlas::Create();
+    xatlas::MeshDecl meshDecl;
+    meshDecl.vertexCount = singleArray.positions.size();
+    meshDecl.vertexPositionData = singleArray.positions.data();
+    meshDecl.vertexPositionStride = sizeof(Vector3);
+    meshDecl.indexCount = singleArray.indices.size();
+    meshDecl.indexData = singleArray.indices.data();
+    meshDecl.indexFormat = xatlas::IndexFormat::UInt32;
+    xatlas::AddMeshError error = xatlas::AddMesh(atlas, meshDecl, (uint32_t)1);
+    if (error != xatlas::AddMeshError::Success) {
+        xatlas::Destroy(atlas);
+        return false;
+    }
+
+    xatlas::Generate(atlas);
+    if (atlas->meshCount <= 0) return false;
+
+    float uvWidth = 1.f / atlas->width;
+    float uvHeight = 1.f / atlas->height;
+    const xatlas::Mesh& mesh = atlas->meshes[0];
+    for (uint32_t j = 0; j < mesh.chartCount; j++) {
+        const xatlas::Chart* chart = &mesh.chartArray[j];
+        for (uint32_t k = 0; k < chart->faceCount; k++) {
+            int verts[3][2];
+            for (int l = 0; l < 3; l++) {
+                const xatlas::Vertex& v = mesh.vertexArray[mesh.indexArray[chart->faceArray[k] * 3 + l]];
+                singleArray.uvs[v.xref] = Vector2(uvWidth * (int)v.uv[0], uvHeight * (int)v.uv[1]);
+            }
         }
-#ifdef DEBUG_SINGLE_BUILD_TIME
-        ui32 time_start = Root::Instance()->getCurrentTime();
-#endif
-        int channel = VoxelBuffer::CHANNEL_SDF;
-        // Initialize dynamic memory:
-        // These vectors are re-used.
-        // We don't know in advance how much geometry we are going to produce.
-        // Once capacity is big enough, no more memory should be allocated
+    }
+    return true;
+}
+
+void VoxelMesherSurfaceNets::build_internal(MeshOutput &output, 
+                                            std::shared_ptr<VoxelBuffer> voxels,
+                                            unsigned int channel, 
+                                            int lod_index, 
+                                            const Vector3i &position) {
+    uint8_t cell_border_mask = 0;
+
+    const Vector3i block_size_with_padding = voxels->get_size();
+    const Vector3i block_size = block_size_with_padding - Vector3i(MIN_PADDING + MAX_PADDING);
+    const Vector3i block_size_scaled = block_size << lod_index;
+
+    auto const funVoxelSdf = [&](const Vector3i &pos) -> float const {
+        return voxels->get_voxel_f(pos, VoxelBuffer::CHANNEL_SDF);
+    };
+    auto const funVoxelMaterial = [&](const Vector3 &pos)->MaterialType const {
+        return (MaterialType)voxels->get_voxel(pos, VoxelBuffer::CHANNEL_TYPE);
+    };
+    Vector3i vVoxelSize(block_size_with_padding.x, block_size_with_padding.y, block_size_with_padding.z);
+    std::shared_ptr<VertexMesh> &&pmesh = surface_nets_reduce_surface(funVoxelSdf, funVoxelMaterial, vVoxelSize,
+        MIN_PADDING, MAX_PADDING, 0, position);
+    vertexMesh2outputArrays(pmesh, output, block_size_scaled, cell_border_mask, position);
+    if (lod_index == 0) return;
+    //insure lod_index in [0, _lod_count]
+    for (int downscale_lod = 1; downscale_lod < _lod_count; ++downscale_lod) {
         clear_output();
 
-        std::shared_ptr<VoxelBuffer> voxels = input.voxels;
+        std::shared_ptr<VertexMesh> &&pnew_mesh = surface_nets_lod_from_upper_lod(
+            pmesh, funVoxelSdf, funVoxelMaterial, vVoxelSize, MIN_PADDING, MAX_PADDING, downscale_lod);
 
-        if (BMESH_SUPPORT_WATER) {
-            build_internal_with_water(output, voxels, channel, input.lod, input.position);
-        }
-        else {
-            build_internal(output, voxels, channel, input.lod, input.position);
-        }
-
-        if (output.surfaces.size() > 0) {
-            calcUvs(output.surfaces[0]);
-        }
-
-#ifdef DEBUG_SINGLE_BUILD_TIME
-        ui32 time_end = Root::Instance()->getCurrentTime();
-        LordLogError("VoxelMesherSurfaceNets::build duration = %I32d(ms)", time_end - time_start);
-#endif
-    }
-
-    bool VoxelMesherSurfaceNets::calcUvs(Arrays& singleArray) {
-        singleArray.uvs.resize(singleArray.positions.size(), Vector2(rand() / RAND_MAX, rand() / RAND_MAX));
-
-        xatlas::Atlas* atlas = xatlas::Create();
-        xatlas::MeshDecl meshDecl;
-        meshDecl.vertexCount = singleArray.positions.size();
-        meshDecl.vertexPositionData = singleArray.positions.data();
-        meshDecl.vertexPositionStride = sizeof(Vector3);
-        meshDecl.indexCount = singleArray.indices.size();
-        meshDecl.indexData = singleArray.indices.data();
-        meshDecl.indexFormat = xatlas::IndexFormat::UInt32;
-        xatlas::AddMeshError error = xatlas::AddMesh(atlas, meshDecl, (uint32_t)1);
-        if (error != xatlas::AddMeshError::Success) {
-            xatlas::Destroy(atlas);
-            return false;
-        }
-
-        xatlas::Generate(atlas);
-
-        if (atlas->meshCount <= 0) return false;
-        float uvWidth = 1.f / atlas->width;
-        float uvHeight = 1.f / atlas->height;
-        const xatlas::Mesh& mesh = atlas->meshes[0];
-        for (uint32_t j = 0; j < mesh.chartCount; j++) {
-            const xatlas::Chart* chart = &mesh.chartArray[j];
-            for (uint32_t k = 0; k < chart->faceCount; k++) {
-                int verts[3][2];
-                for (int l = 0; l < 3; l++) {
-                    const xatlas::Vertex& v = mesh.vertexArray[mesh.indexArray[chart->faceArray[k] * 3 + l]];
-                    singleArray.uvs[v.xref] = Vector2(uvWidth * (int)v.uv[0], uvHeight * (int)v.uv[1]);
-                }
-            }
-        }
-    }
-
-    VoxelMesher *VoxelMesherSurfaceNets::clone()
-    {
-        return new VoxelMesherSurfaceNets;
-    }
-
-    void VoxelMesherSurfaceNets::build_internal(MeshOutput &output, std::shared_ptr<VoxelBuffer> voxels,
-        unsigned int channel, int lod_index, const Vector3i &position)
-    {
-        uint8_t cell_border_mask = 0;
-
-        const Vector3i block_size_with_padding = voxels->get_size();
-        const Vector3i block_size = block_size_with_padding - Vector3i(MIN_PADDING + MAX_PADDING);
-        const Vector3i block_size_scaled = block_size << lod_index;
-
-        auto const funVoxelSdf = [&](const Vector3i &pos) -> float const {
-            return voxels->get_voxel_f(pos, VoxelBuffer::CHANNEL_SDF);
-        };
-        auto const funVoxelMaterial = [&](const Vector3 &pos)->MaterialType const {
-            return (MaterialType)voxels->get_voxel(pos, VoxelBuffer::CHANNEL_TYPE);
-        };
-
-        Vector3i vVoxelSize(block_size_with_padding.x, block_size_with_padding.y, block_size_with_padding.z);
-        std::shared_ptr<VertexMesh> &&pmesh = surface_nets_reduce_surface(funVoxelSdf, funVoxelMaterial, vVoxelSize,
-            MIN_PADDING, MAX_PADDING, 0, position);
-
-        vertexMesh2outputArrays(pmesh, output, block_size_scaled, cell_border_mask, position);
-        if (lod_index == 0) return;
-        //insure lod_index in [0, _lod_count]
-        for (int downscale_lod = 1; downscale_lod < _lod_count; ++downscale_lod) {
-            clear_output();
-
-            std::shared_ptr<VertexMesh> &&pnew_mesh = surface_nets_lod_from_upper_lod(
-                pmesh, funVoxelSdf, funVoxelMaterial, vVoxelSize, MIN_PADDING, MAX_PADDING, downscale_lod);
-
-            if (lod_index == downscale_lod) {
-                output.surfaces.clear();
-                vertexMesh2outputArrays(pnew_mesh, output, block_size_scaled, cell_border_mask, position);
-                return;
-            }
-
+        if (lod_index == downscale_lod) {
+            output.surfaces.clear();
             vertexMesh2outputArrays(pnew_mesh, output, block_size_scaled, cell_border_mask, position);
-            pmesh.swap(pnew_mesh);
+            return;
         }
+
+        vertexMesh2outputArrays(pnew_mesh, output, block_size_scaled, cell_border_mask, position);
+        pmesh.swap(pnew_mesh);
     }
+}
 
     void VoxelMesherSurfaceNets::build_internal_with_water(MeshOutput &output,
         std::shared_ptr<VoxelBuffer> voxels,
@@ -261,14 +253,13 @@
         return vi;
     }
 
-    void VoxelMesherSurfaceNets::clear_output()
-    {
-        _output_indices.clear();
-        _is_water = false;
-        _output_normals.clear();
-        _output_vertices.clear();
-        _output_materials.clear();
-    }
+void VoxelMesherSurfaceNets::clear_output() {
+    _is_water = false;
+    _output_vertices.clear();
+    _output_normals.clear();
+    _output_indices.clear();
+    _output_materials.clear();
+}
 
     void VoxelMesherSurfaceNets::fill_surface_arrays(Arrays &arrays)
     {
@@ -308,7 +299,7 @@
             for (int i = 0; i < 3; i++) {
                 uint32_t index = (uint32_t)(cell_vertex_indices[(int)mesh.faces_[0][t][i]]);
 
-                if (MESH_SHARE_POINTS) {
+                if (g_bMeshSharePoints) {
                     //if normal is ZERO or material belongs to regular materials, do not share face vertex
                     if (_output_normals[index] == Vector3(0) || !mesh.share_point_[(int)mesh.faces_[0][t][i]]) {
                         Vector3 primary = mesh.vertices_[(int)mesh.faces_[0][t][i]] + offset;

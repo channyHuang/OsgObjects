@@ -3,13 +3,13 @@
 #include "voxelblock.h"
 #include <fstream>
 
-VoxelMap *VoxelMap::instance = nullptr;
+std::unique_ptr<VoxelMap> VoxelMap::m_pInstance = nullptr;
 
 VoxelMap::VoxelMap() :
-        _last_accessed_block(nullptr) {
+    _last_accessed_block(nullptr) {
 
     // TODO Make it configurable in editor (with all necessary notifications and updatings!)
-    set_block_size_pow2(4);
+    set_block_size_pow2(m_nBlockSizePow2);
 
     _default_voxel.fill(0);
     //_default_voxel[VoxelBuffer::CHANNEL_SDF] = 1;
@@ -48,7 +48,7 @@ int VoxelMap::get_voxel(Vector3i pos, unsigned int c) const {
     return block->voxels->get_voxel(to_local(pos), c);
 }
 
-VoxelBlock *VoxelMap::get_or_create_block_at_voxel_pos(Vector3i pos) {
+VoxelBlock* VoxelMap::get_or_create_block_at_voxel_pos(Vector3i pos) {
     Vector3i bpos = voxel_to_block(pos);
     VoxelBlock *block = get_block(bpos);
 
@@ -213,9 +213,8 @@ void VoxelMap::clear() {
     }*/
     _blocks.clear();
     _last_accessed_block = nullptr;
-    if (instance != nullptr) {
-        delete instance;
-        instance = nullptr;
+    if (m_pInstance != nullptr) {
+        m_pInstance.reset(nullptr);
     }
 }
 

@@ -1,6 +1,6 @@
-#ifndef VOXELMAP_H
-#define VOXELMAP_H
+#pragma once
 
+#include <memory>
 #include <unordered_map>
 
 #include "commonMath/boxi.h"
@@ -37,10 +37,10 @@ public:
     ~VoxelMap();
 
     static VoxelMap *getInstance() {
-        if (instance == nullptr) {
-            instance = new VoxelMap;
+        if (m_pInstance == nullptr) {
+            m_pInstance = std::make_unique<VoxelMap>();
         }
-        return instance;
+        return m_pInstance.get();
     }
 
     void create(unsigned int block_size_po2, int lod_index);
@@ -117,7 +117,7 @@ public:
     bool is_area_fully_loaded(const Rect3i voxels_box) const;
 
 private:
-    static VoxelMap *instance;
+    static std::unique_ptr<VoxelMap> m_pInstance;
 
     void set_block(Vector3i bpos, VoxelBlock *block);
     VoxelBlock *get_or_create_block_at_voxel_pos(Vector3i pos);
@@ -157,7 +157,6 @@ private:
     unsigned int _block_size_mask;
 
     unsigned int _lod_index = 0;
+
+    const size_t m_nBlockSizePow2 = 4;
 };
-
-
-#endif // VOXELMAP_H
