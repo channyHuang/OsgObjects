@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#include <osg/TextureCubeMap>
+#include "commonOsg/commonOsg.h"
 
 HGVertex::HGVertex() {}
 
@@ -245,94 +245,6 @@ osg::ref_ptr<osg::Node> HGVertex::showBoxWithRightTexture() {
 
 }
 
-osg::ref_ptr<osg::TextureCubeMap> readCubeMap1() {
-	osg::ref_ptr<osg::TextureCubeMap> pCubeMap = new osg::TextureCubeMap;
-#define CUBEMAP_FILENAME(face) "../data/texture/" #face ".bmp"
-
-	osg::ref_ptr<osg::Image>imagePosX = osgDB::readRefImageFile(CUBEMAP_FILENAME(posx));
-	osg::ref_ptr<osg::Image>imageNegX = osgDB::readRefImageFile(CUBEMAP_FILENAME(negx));
-	osg::ref_ptr<osg::Image>imagePosY = osgDB::readRefImageFile(CUBEMAP_FILENAME(posy));
-	osg::ref_ptr<osg::Image>imageNegY = osgDB::readRefImageFile(CUBEMAP_FILENAME(negy));
-	osg::ref_ptr<osg::Image>imagePosZ = osgDB::readRefImageFile(CUBEMAP_FILENAME(posz));
-	osg::ref_ptr<osg::Image>imageNegZ = osgDB::readRefImageFile(CUBEMAP_FILENAME(negz));
-
-	if (imagePosX && imageNegX && imagePosY && imageNegY && imagePosZ && imageNegZ) {
-		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_X, imagePosX);
-		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_X, imageNegX);
-		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_Y, imagePosY);
-		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_Y, imageNegY);
-		pCubeMap->setImage(osg::TextureCubeMap::POSITIVE_Z, imagePosZ);
-		pCubeMap->setImage(osg::TextureCubeMap::NEGATIVE_Z, imageNegZ);
-
-		pCubeMap->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-		pCubeMap->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-		pCubeMap->setWrap(osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_EDGE);
-
-        pCubeMap->setUseHardwareMipMapGeneration(true);
-
-		pCubeMap->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-		pCubeMap->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR_MIPMAP_LINEAR);
-	} else {
-		printf("Error: skybox could not find background textures\n");
-	}
-
-	return pCubeMap;
-}
-
-osg::ref_ptr<osg::Geometry> createCubeGeometryForSkybox() {
-    osg::ref_ptr<osg::Geometry> geom = new osg::Geometry;
-    osg::Vec3 v[8] = {
-        {-1, -1, -1}, { 1, -1, -1}, { 1, -1,  1}, {-1, -1,  1}, 
-        {-1,  1, -1}, { 1,  1, -1}, { 1,  1,  1}, {-1,  1,  1}  
-    };
-    
-    unsigned int indices[36] = {
-        1, 5, 2,  2, 5, 6,
-        0, 3, 4,  4, 3, 7,
-        4, 7, 5,  5, 7, 6,
-        0, 1, 3,  3, 1, 2,
-        3, 2, 7,  7, 2, 6,
-        0, 4, 1,  1, 4, 5
-    };
-    
-    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array(8, v);
-    osg::ref_ptr<osg::Vec3Array> texCoords = new osg::Vec3Array;
-    
-    for (int i = 0; i < 8; ++i) {
-        texCoords->push_back(v[i]); 
-    }
-    
-    geom->setVertexArray(vertices);
-    geom->setTexCoordArray(0, texCoords);
-    
-    osg::ref_ptr<osg::DrawElementsUInt> elements = new osg::DrawElementsUInt(GL_TRIANGLES, 36, indices);
-    geom->addPrimitiveSet(elements);
-    
-    osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-    for (int i = 0; i < 8; ++i) normals->push_back(v[i]);
-    geom->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
-
-    return geom;
-}
-
 osg::ref_ptr<osg::Node> HGVertex::showBoxWithCubeMap() {
-    osg::ref_ptr<osg::Geode> pGeode = new osg::Geode;
-
-    osg::ref_ptr<osg::Geometry> pGeom = createCubeGeometryForSkybox();
-    osg::ref_ptr<osg::StateSet> pStateset = pGeom->getOrCreateStateSet();
-
-    osg::ref_ptr<osg::TextureCubeMap> pSkyMap = readCubeMap1();
-    pStateset->setTextureAttributeAndModes(0, pSkyMap, osg::StateAttribute::ON);
-
-    // add shader
-    osg::ref_ptr<osg::Program> program = new osg::Program;
-    program->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX, "../data/shaders/skybox.vert"));
-    program->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT, "../data/shaders/skybox.frag"));
-    pStateset->setAttributeAndModes(program, osg::StateAttribute::ON);
-
-    osg::ref_ptr<osg::Uniform> skyboxSampler = new osg::Uniform("skybox", 0);
-    pStateset->addUniform(skyboxSampler);
-
-    pGeode->addChild(pGeom);
-    return pGeode;
+    return createSkyBox();
 }
