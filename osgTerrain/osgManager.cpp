@@ -1,14 +1,11 @@
 #include "osgManager.h"
 
 OsgManager::OsgManager() {
-	// m_pRootGroup->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
 	m_pRootGroup->addChild(createSkyBox());
 	m_pRootGroup->addChild(createAxis());
 
 	m_pRootGeomTerrain = new osg::Group;
-	// m_pRootGeomTerrain->addChild(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0.0f, 0.0f, 0.0f), 0.1f)));
-	m_pRootWireTerrain = new osg::Group;//createLight(osg::Vec3(0.f, 0.f, 5.f), 1, bs, root);
-	// m_pRootWireTerrain->addChild(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3(0.0f, 0.0f, 0.0f), 0.1f)));
+	m_pRootWireTerrain = new osg::Group;
 	m_pSceneSwitcher->addChild(m_pRootGeomTerrain);
 	m_pSceneSwitcher->addChild(m_pRootWireTerrain);
 
