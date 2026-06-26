@@ -3,6 +3,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <osg/Texture2DArray>
+
 #include "commonMath/vector3i.h"
 #include "generator/voxel_mesher.h"
 #include "terrains/voxelBrush.h"
@@ -35,6 +37,10 @@ public:
 	bool Collaborate(const char* pName);
 	void clear();
 	void setNormalMap(osg::ref_ptr<osg::Node> geomNode, osg::ref_ptr<osgShadow::ShadowedScene> shadowedScene);
+
+	void onOffWireframe();
+	// load all texture as global
+	osg::ref_ptr<osg::StateSet> createGlobalTexture();
 	
 // slots
 	void updateTerrain(const Arrays& surface, Vector3i pos);
@@ -52,10 +58,10 @@ public:
 	
 private:
 	OsgManager();
-	void init();
 	void updateShow();
 
-	osg::ref_ptr<osg::Geometry> getMeshGeometry(const Arrays& surface, osg::Vec3 color = osg::Vec3(1.f, 1.f, 1.f));
+	// from surface to osg::Node
+	osg::ref_ptr<osg::Geometry> getSurfaceGeometry(const Arrays& surface, osg::Vec3 color = osg::Vec3(1.f, 1.f, 1.f));
 	osg::ref_ptr<osgShadow::ShadowedScene> getShadowScene(osg::ref_ptr<osg::Geometry> geomNode, ShowType type = ShowType::SHOW_FRONT_AND_BACK);
 
 	void showModelWithShader(osg::ref_ptr<osg::Geometry> pGeom);
@@ -65,7 +71,8 @@ protected:
 	osg::ref_ptr<osg::Group> m_pRootWireTerrain = nullptr;
 	osg::ref_ptr<osg::Group> sunLight = nullptr;
 	osg::ref_ptr<osgViewer::Viewer> pViewer = nullptr;
-	osg::BoundingSphere bs;
+	osg::BoundingSphere m_stBoundingSphere;
+	osg::ref_ptr<osg::StateSet> m_pGlobalStateSet;
 
 	bool bFirstTime = false;
 	int sceneIdx = 0;

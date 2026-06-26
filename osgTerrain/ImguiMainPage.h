@@ -14,11 +14,13 @@
 
 #include "generator/terraingenerator_roblox.h"
 
+#include "CameraHandler.h"
 
 class ImguiMainPage : public OsgImGuiHandler {
 public:
     ImguiMainPage();
-    ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler);
+    // ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler);
+    ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandlerTerrain> pCameraHandler);
     ~ImguiMainPage();
 
 protected:
@@ -31,7 +33,7 @@ private:
     const int nMaxFileNameLength = 128;
 
     osg::ref_ptr<osgViewer::Viewer> pViewer = nullptr;
-    osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
+    osg::ref_ptr< CameraHandlerTerrain> m_pCameraHandler = nullptr;
     PickHandler* m_pPicker = nullptr;
     
     std::chrono::time_point<std::chrono::steady_clock> stLastAutoUpdateTime; // ms

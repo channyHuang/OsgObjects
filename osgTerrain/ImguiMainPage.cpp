@@ -12,7 +12,7 @@ void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
 
 ImguiMainPage::ImguiMainPage() {}
 
-ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
+ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandlerTerrain> pCameraHandler) {
     pViewer = &viewer;
     m_pCameraHandler = pCameraHandler;
     OsgManager::getInstance()->setViewer(viewer);
@@ -94,11 +94,11 @@ void ImguiMainPage::drawUi() {
                 TerrainGenerator_Roblox::getInstance()->generateTerrainByBiomes(OsgManager::getInstance()->m_pBrush, m_stBiomeParams);
             }
             ImGui::SameLine();
-            if (ImGui::Button("test sdf")) {
-                //Generator_Recon::getInstance()->loadFile(cFileName);
-            }
-
             ImGui::ProgressBar(TerrainGenerator_Roblox::getInstance()->progress);
+
+            if (ImGui::Button("wireframe")) {
+                OsgManager::getInstance()->onOffWireframe();
+            }
 
             if (ImGui::Button("clear")) {
                 OsgManager::getInstance()->clear();

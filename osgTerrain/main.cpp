@@ -36,7 +36,9 @@ int main() {
 	viewer.apply(new osgViewer::SingleWindow(200, 200, 800, 800));
 	viewer.setRealizeOperation(new ImGuiInitOperation);
 
-	osg::ref_ptr< CameraHandler> pCameraHandler = new CameraHandler(viewer);
+	// osg::ref_ptr< CameraHandler> pCameraHandler = new CameraHandler(viewer);
+	// viewer.addEventHandler(pCameraHandler);
+	osg::ref_ptr< CameraHandlerTerrain> pCameraHandler = new CameraHandlerTerrain(viewer);
 	viewer.addEventHandler(pCameraHandler);
 
 	osg::Vec3 eye, up, center;

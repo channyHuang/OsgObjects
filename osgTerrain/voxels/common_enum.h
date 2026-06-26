@@ -16,6 +16,7 @@ enum MaterialType {
     ICE,
     LAVA,
     MUD,
+    ROAD,
     ROCK,
     SAND,
     SANDSTONE,
@@ -24,7 +25,6 @@ enum MaterialType {
     STONE,
     WATER,
     WOOD,
-    ROAD,
     Material_MAX
 };
 
