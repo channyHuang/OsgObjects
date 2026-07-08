@@ -385,11 +385,11 @@ namespace SURFACE_NETS {
 					// in 8 corners, if one is cube, then generate cube vertex; if there is no smooth material, not share point in diff faces 
 					bool bvertex_is_cube = false;
 					int nhalfsmooth_count = 0;
+					uint32_t eMaterialFinal = 0;
 					for (unsigned int idx = 0; idx < 8; ++idx) {
                         MaterialType eMaterialType = materialFunction(vVoxelCorner[idx]);
 						auto mtr = getBlockMaterial(eMaterialType);
-						if (mtr != MeshType::MESH_UNKNOWN)
-						{
+						if (mtr != MeshType::MESH_UNKNOWN) {
 							if (mtr == MeshType::MESH_CUBE)
 								bvertex_is_cube = true;
 							++nhalfsmooth_count;
@@ -397,6 +397,7 @@ namespace SURFACE_NETS {
                         else if (eMaterialType == MaterialType::AIR) {
 							++nhalfsmooth_count;
 						}
+						eMaterialFinal |= ( 1 << eMaterialType) ;
 					}
 					if (bvertex_is_cube) {
                         mesh_vertex = pos + Vector3(fcube_position, fcube_position, fcube_position);
@@ -409,7 +410,7 @@ namespace SURFACE_NETS {
 					// mesh_vertex -= Vector3((float)nMinPadding, (float)nMinPadding, (float)nMinPadding);
 
 					mesh.vertices_.emplace_back(mesh_vertex);
-                    mesh.materials_.emplace_back(0);
+                    mesh.materials_.emplace_back(eMaterialFinal);
 					mesh.vertexValid_.emplace_back(!isVoxelLowerBoundary(posi) && !isVoxelUpperBoundary(posi, vVoxelSize.y - 2));
 					mesh.share_point_.emplace_back(nhalfsmooth_count < 8);
 				}
@@ -513,7 +514,6 @@ namespace SURFACE_NETS {
 				mesh.normals_[v0] += face_normal_2;
 				mesh.normals_[v2] += face_normal_2;
 				mesh.normals_[v3] += face_normal_2;
-
 
                 if (!isVoxelLowerBoundary(vPos1) && !isVoxelLowerBoundary(vPos2)
                     && !isVoxelUpperBoundary(pos, vVoxelSize.y - 2)

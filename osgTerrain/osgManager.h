@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include <osg/Texture2DArray>
+#include <osg/ImageUtils>
 
 #include "commonMath/vector3i.h"
 #include "generator/voxel_mesher.h"
@@ -36,7 +37,7 @@ public:
 	void showModelScene(const char* pName);
 	bool Collaborate(const char* pName);
 	void clear();
-	void setNormalMap(osg::ref_ptr<osg::Node> geomNode, osg::ref_ptr<osgShadow::ShadowedScene> shadowedScene);
+	void setLight();
 
 	void onOffWireframe();
 	// load all texture as global
@@ -62,6 +63,7 @@ private:
 
 	// from surface to osg::Node
 	osg::ref_ptr<osg::Geometry> getSurfaceGeometry(const Arrays& surface, osg::Vec3 color = osg::Vec3(1.f, 1.f, 1.f));
+	osg::ref_ptr<osg::Geometry> getSurfaceGeometryFrame(const Arrays& surface, osg::Vec3 color = osg::Vec3(1.f, 1.f, 1.f));
 	osg::ref_ptr<osgShadow::ShadowedScene> getShadowScene(osg::ref_ptr<osg::Geometry> geomNode, ShowType type = ShowType::SHOW_FRONT_AND_BACK);
 
 	void showModelWithShader(osg::ref_ptr<osg::Geometry> pGeom);

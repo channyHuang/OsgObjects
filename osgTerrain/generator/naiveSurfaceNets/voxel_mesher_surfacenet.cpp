@@ -2,7 +2,7 @@
 
 #include "xatlas/xatlas.h"
 //#define DEBUG_SINGLE_BUILD_TIME
-//#define DEBUG_SINGLE_BUILD_MESHS
+// #define DEBUG_SINGLE_BUILD_MESHS
     
 namespace {
     static const float TRANSITION_CELL_SCALE = 0.25;
@@ -90,10 +90,12 @@ void VoxelMesherSurfaceNets::build(MeshOutput &output, const MeshInput &input) {
         build_internal(output, voxels, channel, input.lod, input.position);
     }
 
-    if (output.surfaces.size() > 0) {
-        calcUvs(output.surfaces[0]);
-        // outputToObjFile(output.surfaces[0], input.position, false);
-    }
+    // if (output.surfaces.size() > 0) {
+    //     if ( !calcUvs(output.surfaces[0]) ) {
+    //         printf("-------- calculate uv failed! --------\n");
+    //     }
+    //     outputToObjFile(output.surfaces[0], input.position, false);
+    // }
 }
 
 bool VoxelMesherSurfaceNets::calcUvs(Arrays& singleArray) {

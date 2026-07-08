@@ -35,7 +35,6 @@ void OsgManager::clear() {
 		}
 	}
 	m_mapScene.clear();
-	m_pSceneSwitcher->removeChildren(2, m_pSceneSwitcher->getNumChildren());
 
 	updateShow();
 }
@@ -52,29 +51,94 @@ void OsgManager::onOffWireframe() {
 
 osg::ref_ptr<osg::StateSet> OsgManager::createGlobalTexture() {
 	std::string sTexturePath = "../data/texture";
-	std::vector<std::string> sMaterialFiles;
+	std::vector<std::filesystem::path> sMaterialFiles;
 	for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::absolute(sTexturePath))) {
         if (entry.is_regular_file()) {
             std::string sFileName = entry.path().filename().string();
             if (!sFileName.starts_with("material-")) continue;
-			sMaterialFiles.emplace_back(entry.path().string());
+			sMaterialFiles.emplace_back(entry.path());
 		}
 	}
+	std::sort(sMaterialFiles.begin(), sMaterialFiles.end());
+
 	osg::ref_ptr<osg::Texture2DArray> pTextureArr = new osg::Texture2DArray;
 	pTextureArr->setTextureSize(1024, 1024, sMaterialFiles.size()); 
 	
+	osg::ref_ptr<osgDB::Options> options = new osgDB::Options;
+	options->setOptionString("RGBA");
 	for (int i = 0; i < sMaterialFiles.size(); ++i) {
-		osg::ref_ptr<osg::Image> pImage = osgDB::readImageFile(sMaterialFiles[i]);
+		osg::ref_ptr<osg::Image> pImage = osgDB::readImageFile(sMaterialFiles[i], options.get());
 		if (pImage) {
+			if (pImage->getPixelFormat() != GL_RGBA || pImage->getDataType() != GL_UNSIGNED_BYTE) {
+            	osg::ref_ptr<osg::Image> pConvertedImg = new osg::Image;
+            	pConvertedImg->allocateImage(pImage->s(), pImage->t(), 1, GL_RGBA, GL_UNSIGNED_BYTE);
+				osg::copyImage(pImage.get(), 0, 0, 0, pImage->s(), pImage->t(), 1,
+										pConvertedImg.get(), 0, 0, 0, false);
+				pImage = pConvertedImg;
+			}
 			pTextureArr->setImage(i, pImage);
 		}
 	}
+	pTextureArr->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
+	pTextureArr->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
 
 	osg::ref_ptr<osg::StateSet> pGlobalStateSet = new osg::StateSet;
 	pGlobalStateSet->setTextureAttributeAndModes(0, pTextureArr.get());
 	pGlobalStateSet->addUniform(new osg::Uniform("textureArray", 0));
+
+	// add shader
+    osg::ref_ptr<osg::Program> pShaderProgram = new osg::Program;
+    pShaderProgram->addShader(osg::Shader::readShaderFile(osg::Shader::VERTEX, "../data/shaders/surface.vert"));
+    pShaderProgram->addShader(osg::Shader::readShaderFile(osg::Shader::FRAGMENT, "../data/shaders/surface.frag"));
+	pGlobalStateSet->setAttributeAndModes(pShaderProgram, osg::StateAttribute::ON);
+
 	return pGlobalStateSet;
 }
+
+// osg::ref_ptr<osg::Geometry> OsgManager::getSurfaceGeometry(const Arrays& surface, osg::Vec3 color) {
+// 	osg::ref_ptr<osg::Geometry> geom = new osg::Geometry();
+// 	osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
+// 	for (auto& pt : surface.positions) {
+// 		vertices->push_back(osg::Vec3(pt.x, pt.y, pt.z));
+// 	}
+// 	geom->setVertexArray(vertices.get());
+
+// 	osg::ref_ptr<osg::Vec3Array> pNormals = new osg::Vec3Array;
+// 	for (auto& n : surface.normals) {
+// 		pNormals->push_back(osg::Vec3(n.x, n.y, n.z));
+// 	}
+// 	// geom->setNormalArray(pNormals, osg::Array::BIND_PER_VERTEX);
+// 	geom->setVertexAttribArray(1, pNormals, osg::Array::BIND_PER_VERTEX);
+// 	geom->setVertexAttribBinding(1, osg::Geometry::BIND_PER_VERTEX);
+	
+// 	// could not use osg::UIntArray here, will not be translated to shader correctly
+// 	osg::ref_ptr<osg::FloatArray> texIndices[8];
+// 	for (size_t i = 0; i < 8; ++i) {
+// 		texIndices[i] = new osg::FloatArray;
+// 		texIndices[i]->resize(surface.materials.size(), 0);
+// 	}
+// 	size_t nIdxMaterial = 0; 
+// 	for (uint32_t eMaterial : surface.materials) {
+// 		size_t nIdxTex = 0;
+// 		for (size_t i = 0; i < MaterialType::Material_MAX; ++i) {
+// 			if ( (eMaterial & (1 << i)) ) {
+// 				texIndices[nIdxTex]->at(nIdxMaterial) = i * 1.0;
+// 				nIdxTex++;
+// 			}
+// 		}
+// 		nIdxMaterial++;
+// 			}
+
+// 	for (size_t i = 0; i < 8; ++i) {
+// 		geom->setVertexAttribArray(2 + i, texIndices[i], osg::Array::BIND_PER_VERTEX);
+// 		geom->setVertexAttribBinding(2 + i, osg::Geometry::BIND_PER_VERTEX);
+// 	}
+
+// 	geom->setStateSet(m_pGlobalStateSet.get()); 
+
+// 	geom->addPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, surface.indices.size(), surface.indices.data()));
+// 	return geom;
+// }
 
 osg::ref_ptr<osg::Geometry> OsgManager::getSurfaceGeometry(const Arrays& surface, osg::Vec3 color) {
 	osg::ref_ptr<osg::Geometry> geom = new osg::Geometry();
@@ -84,65 +148,89 @@ osg::ref_ptr<osg::Geometry> OsgManager::getSurfaceGeometry(const Arrays& surface
 	}
 	geom->setVertexArray(vertices.get());
 
-	osg::Vec3Array* normals = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec3Array> pNormals = new osg::Vec3Array;
 	for (auto& n : surface.normals) {
-		normals->push_back(osg::Vec3(n.x, n.y, n.z));
+		pNormals->push_back(osg::Vec3(n.x, n.y, n.z));
 	}
-	geom->setNormalArray(normals, osg::Array::BIND_PER_VERTEX);
-
-	osg::ref_ptr<osg::Vec2Array> tcoords = new osg::Vec2Array;
-	for (auto& uv : surface.uvs) {
-		tcoords->push_back(osg::Vec2(uv.x, uv.y));
+	// geom->setNormalArray(pNormals, osg::Array::BIND_PER_VERTEX);
+	geom->setVertexAttribArray(1, pNormals, osg::Array::BIND_PER_VERTEX);
+	geom->setVertexAttribBinding(1, osg::Geometry::BIND_PER_VERTEX);
+	
+	// could not use osg::UIntArray here, will not be translated to shader correctly
+	osg::ref_ptr<osg::Vec4Array> pWeights[4];
+	for (size_t i = 0; i < 4; ++i) {
+		pWeights[i] = new osg::Vec4Array;
+		pWeights[i]->resize(surface.materials.size(), osg::Vec4(0, 0, 0, 0));
 	}
-	geom->setTexCoordArray(0, tcoords.get(), osg::Array::BIND_PER_VERTEX);
+	size_t nIdxMaterial = 0; 
+	for (uint32_t eMaterial : surface.materials) {
+		int count = 0;
+		for (size_t i = 0; i < MaterialType::Material_MAX; ++i) {
+			if ( (eMaterial & (1 << i)) ) {
+				count++;
+			}
+		}
+		double weight = 1. / count;
+		size_t nIdxTex = 0;
+		for (size_t i = 1; i < MaterialType::Material_MAX; ++i) {
+			if ( (eMaterial & (1 << i)) ) {
+				pWeights[(i - 1) / 4]->at(nIdxMaterial)[(i - 1) % 4] = weight;
+			}
+		}
+		nIdxMaterial++;
+	}
 
-	osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-	colors->push_back(osg::Vec4(color.x(), color.y(), color.z(), 1.f));
-	geom->setColorArray(colors.get(), osg::Array::BIND_OVERALL);
+	for (size_t i = 0; i < 4; ++i) {
+		geom->setVertexAttribArray(2 + i, pWeights[i], osg::Array::BIND_PER_VERTEX);
+		geom->setVertexAttribBinding(2 + i, osg::Geometry::BIND_PER_VERTEX);
+	}
 
-	// osg::ref_ptr<osg::UIntArray> texIndices = new osg::UIntArray;
-	// texIndices->reserve(surface.materials.size());
-	// for (auto idx : surface.materials) {
-	// 	texIndices->push_back(static_cast<unsigned int>(idx));
-	// }
-
-	// geom->setVertexAttribArray(1, texIndices, osg::Array::BIND_PER_VERTEX); // 绑定到属性位置1
-	// geom->setVertexAttribBinding(1, osg::Geometry::BIND_PER_VERTEX);
-
-	// geom->setStateSet(m_pGlobalStateSet.get()); 
+	geom->setStateSet(m_pGlobalStateSet.get()); 
 
 	geom->addPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, surface.indices.size(), surface.indices.data()));
 	return geom;
 }
 
+osg::ref_ptr<osg::Geometry> OsgManager::getSurfaceGeometryFrame(const Arrays& surface, osg::Vec3 color) {
+	osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> pVertices = new osg::Vec3Array;
+	for (auto& pt : surface.positions) {
+		pVertices->push_back(osg::Vec3(pt.x, pt.y, pt.z));
+	}
+	pGeom->setVertexArray(pVertices.get());
+
+	osg::ref_ptr<osg::Vec4Array> pColors = new osg::Vec4Array;
+	pColors->push_back(osg::Vec4(color.x(), color.y(), color.z(), 1.f));
+	pGeom->setColorArray(pColors.get(), osg::Array::BIND_OVERALL);
+
+	pGeom->addPrimitiveSet(new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, surface.indices.size(), surface.indices.data()));
+	return pGeom;
+}
+
 // update each block when mesh generate done
 void OsgManager::updateTerrain(const Arrays& surface, Vector3i pos) {
-	osg::ref_ptr<osg::Geometry> geom = getSurfaceGeometry(surface);
-	m_stBoundingSphere.expandBy(geom->getBound());
+	osg::ref_ptr<osg::Geometry> pGeom = getSurfaceGeometry(surface);
+	m_stBoundingSphere.expandBy(pGeom->getBound());
 	
-	osg::StateSet* stateset = geom->getOrCreateStateSet();
-	osg::ref_ptr<osg::Material> matirial = createMaterial();
-	stateset->setAttributeAndModes(matirial.get(), osg::StateAttribute::ON);
-	setWireFrame(stateset, ShowType::SHOW_FRONT_AND_BACK);
-	setTexture("../data/texture/material-rock.jpg", stateset);
-	setTexCombine(stateset);
+	osg::StateSet* pStateSet = pGeom->getOrCreateStateSet();
+	setWireFrame(pStateSet, ShowType::SHOW_FRONT_AND_BACK);
 
-	osg::ref_ptr<osg::Geometry> geomFrame = getSurfaceGeometry(surface, osg::Vec3(0.f, 1.f, 0.f));
-	setWireFrame(geomFrame->getOrCreateStateSet(), ShowType::SHOW_WIREFRAME);
+	osg::ref_ptr<osg::Geometry> pGeomFrame = getSurfaceGeometryFrame(surface, osg::Vec3(0.f, 1.f, 0.f));
+	setWireFrame(pGeomFrame->getOrCreateStateSet(), ShowType::SHOW_WIREFRAME);
 
 	{
 		std::unique_lock<std::mutex> locker(mutex);
 		std::unordered_map < Vector3i, std::pair<osg::ref_ptr<osg::Geometry>, osg::ref_ptr<osg::Geometry>>>::iterator scene = m_mapScene.find(pos);
 		
 		if (scene != m_mapScene.end()) {
-			m_pRootGeomTerrain->replaceChild(scene->second.first, geom);
-			m_pRootWireTerrain->replaceChild(scene->second.second, geomFrame);
+			m_pRootGeomTerrain->replaceChild(scene->second.first, pGeom);
+			m_pRootWireTerrain->replaceChild(scene->second.second, pGeomFrame);
 		}
 		else {
-			m_pRootGeomTerrain->addChild(geom);
-			m_pRootWireTerrain->addChild(geomFrame);
+			m_pRootGeomTerrain->addChild(pGeom);
+			m_pRootWireTerrain->addChild(pGeomFrame);
 		}
-		m_mapScene.insert(std::make_pair(pos, std::make_pair(geom, geomFrame)));
+		m_mapScene.insert(std::make_pair(pos, std::make_pair(pGeom, pGeomFrame)));
 	}
 
 #ifdef PHYSICS_ON
@@ -180,20 +268,36 @@ osg::ref_ptr<osgShadow::ShadowedScene> OsgManager::getShadowScene(osg::ref_ptr<o
 	return shadowedScene;
 }
 
-void OsgManager::setNormalMap(osg::ref_ptr<osg::Node> geomNode, osg::ref_ptr<osgShadow::ShadowedScene> shadowedScene) {
-	osg::ref_ptr<osg::Program> program = loadShaderPrograms("normalmap", "glsl/vshader_osg.glsl", "glsl/fshader_osg.glsl");
-	osg::ref_ptr<osg::StateSet> ss = geomNode->getOrCreateStateSet();
-	ss->setAttributeAndModes(program.get(), osg::StateAttribute::ON);
+void OsgManager::setLight() {
+	osg::ref_ptr<osg::LightSource> pSunLightSource = new osg::LightSource;
 
-	ss->setTextureAttributeAndModes(0, createTexture("texture/basecolor.bmp"));
-	ss->setTextureAttributeAndModes(1, createTexture("texture/normal.bmp"));
-	ss->addUniform(new osg::Uniform("diffMap", 0));
-	ss->addUniform(new osg::Uniform("bumpMap", 1));
-	ss->addUniform(new osg::Uniform("useBumpMap", 1));
+	osg::Light* pSunLight = pSunLightSource->getLight();
+	pSunLight->setLightNum(0);
+	// sunLight->setPosition(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	// sunLight->setAmbient(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	// //sunLight->setDiffuse(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	float modelSize = m_stBoundingSphere.radius();
-	osg::Vec3 corner = m_stBoundingSphere.center() + osg::Vec3(modelSize, modelSize, modelSize) * 0.5f;
-	ss->addUniform(new osg::Uniform("lightPos", corner));
+	// sunLightSource->setLight(sunLight);
+	// sunLightSource->setLocalStateSetModes(osg::StateAttribute::ON);
+	// sunLightSource->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+
+	// osg::LightModel* lightModel = new osg::LightModel;
+	// lightModel->setAmbientIntensity(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	// sunLightSource->getOrCreateStateSet()->setAttribute(lightModel);
+
+	osg::ref_ptr<osg::Light> light = new osg::Light;
+    light->setLightNum(0);
+    light->setPosition(osg::Vec4(-1.0f, -1.0f, -1.0f, 0.0f)); 
+    light->setAmbient(osg::Vec4(0.4f, 0.4f, 0.4f, 1.0f)); 
+    light->setDiffuse(osg::Vec4(0.9f, 0.9f, 0.9f, 1.0f)); 
+    light->setSpecular(osg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
+
+    osg::ref_ptr<osg::LightSource> lightSource = new osg::LightSource;
+    lightSource->setLight(light);
+    lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
+  
+
+	m_pRootGeomTerrain->addChild(lightSource);
 }
 
 std::string OsgManager::createSpheres(const osg::Vec3& pos) {

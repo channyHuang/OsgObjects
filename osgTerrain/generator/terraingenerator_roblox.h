@@ -174,7 +174,7 @@ public:
 
 public:
     struct {
-        Vector3i vSize = Vector3i(40);
+        Vector3i vSize = Vector3i(80);
         Vector3 vStart = Vector3(0);
         Box vBox = Box(Vector3(-10.f), Vector3(10.f));
     } _range;

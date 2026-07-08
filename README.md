@@ -1,7 +1,7 @@
 # OsgObjects
 sample projects using osg and imgui as ui
 
-# imguiOsg
+## imguiOsg
 使用imgui做界面，osg做渲染显示。
 
 为了跨平台编译不折腾打算从Qt换成imgui+osg. 测试平台用的是MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports)，系统用的是macOS Big Sur。
@@ -32,6 +32,8 @@ ERROR: 0:1: '' :  version '130' is not supported
 # osgReadSpecialFile
 读取自定义的ply模型文件，默认的ply插件不支持读取同一顶点不同纹理uv的网格模型文件
 
+osg支持的具体格式不多，如读取ply时不支持同一顶点不同纹理坐标的模型、不支持纹理坐标在面元素中指定的模型等等。
+
 # osgReconFrame
 [测试数据集-20-thermocolorlab.tar](https://robotik.informatik.uni-wuerzburg.de/telematics/3dscans/)
 
@@ -52,9 +54,15 @@ ERROR: 0:1: '' :  version '130' is not supported
 
 [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 
-# 其它
-osg支持的具体格式不多，如读取ply时不支持同一顶点不同纹理坐标的模型、不支持纹理坐标在面元素中指定的模型等等。
+# osgTerrain
+使用osg渲染显示随机地形
 
+![Terrain](./gui/terrain.png)
+
+## 地形生成
+用户在界面中设置地形的长宽高，选择需要的地貌，程序根据用户的选择生成包含选定地貌随机地形。其中地貌共有16种：水域water、丘陵hills、山地moutains等等。
+
+# 其它
 assimp并不属于osg。只因为渲染显示一般需要加载模型，而assimp是个还不错的选择。
 
 # 附录

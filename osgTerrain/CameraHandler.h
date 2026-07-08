@@ -12,10 +12,9 @@ public:
 	CameraHandlerTerrain(osgViewer::Viewer& viewer);
 
 	virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
-
-	void reset();
-	void back2WorldCenter();
-
+	virtual void reset();
+	virtual void back2WorldCenter();
+	
 public:
 	bool m_bBack2WorldCenter = false;
 	int m_nAxis = 0;

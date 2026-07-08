@@ -112,7 +112,7 @@ osg::ref_ptr<osg::Node> HGVertex::showBoxWithTexture() {
     pStateset->setMode(GL_LIGHT0, osg::StateAttribute::ON);
 
     // texture
-    std::vector<std::string> vTextureFiles = {"../data/texture/Marble.bmp", "../data/texture/Concrete.bmp"};
+    std::vector<std::string> vTextureFiles = {"../data/texture/material-grass.jpg", "../data/texture/material-sandstone.bmp"};
 
     for (size_t i = 0; i < vTextureFiles.size(); ++i) {
         auto pTexture = generateTexture(vTextureFiles[i]);
@@ -154,7 +154,7 @@ osg::ref_ptr<osg::Geometry> generateGeometry(osg::ref_ptr<osg::Vec3Array> pVerti
                                 osg::ref_ptr<osg::DrawElementsUInt> pTriangles, 
                                 osg::ref_ptr<osg::Vec2Array> pTexcoords,
                                 size_t nIndex = 0,
-                                const std::string &sTexFile = "../data/texture/Marble.bmp") {
+                                const std::string &sTexFile = "../data/texture/material-water.png") {
     osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
     pGeom->setVertexArray(pVertices.get());
     if (pTriangles.valid() && pTriangles->size() > 0) {
@@ -191,7 +191,7 @@ osg::ref_ptr<osg::Node> HGVertex::showBoxWithMultiTexture() {
     generateCubeTexcoord(pTexcoords1);
     generateCubeTexcoord(pTexcoords2);
     osg::ref_ptr<osg::Geometry> pGeom1 = generateGeometry(m_pVertices, pTriangles1, pTexcoords1);
-    osg::ref_ptr<osg::Geometry> pGeom2 = generateGeometry(m_pVertices, pTriangles2, pTexcoords2, 1, "../data/texture/Wood.bmp");
+    osg::ref_ptr<osg::Geometry> pGeom2 = generateGeometry(m_pVertices, pTriangles2, pTexcoords2, 1, "../data/texture/material-wood.png");
 
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
     geode->addDrawable(pGeom1);
@@ -221,12 +221,12 @@ void generateCubeTexcoordQuat(osg::ref_ptr<osg::Vec2Array> &pTexcoord, osg::ref_
 }
 
 osg::ref_ptr<osg::Node> HGVertex::showBoxWithRightTexture() {
-    std::vector<std::string> vTexFiles = {"../data/texture/basecolor.bmp", 
-                                        "../data/texture/Concrete.bmp", 
-                                        "../data/texture/posx.bmp", 
-                                        "../data/texture/normal.bmp", 
-                                        "../data/texture/rockwall.bmp", 
-                                        "../data/texture/Wood.bmp"};
+    std::vector<std::string> vTexFiles = {"../data/texture/material-rock.jpg", 
+                                        "../data/texture/material-road.jpg", 
+                                        "../data/texture/material-snow.jpg", 
+                                        "../data/texture/material-soil.jpg", 
+                                        "../data/texture/material-wood.png", 
+                                        "../data/texture/material-water.png"};
 
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 

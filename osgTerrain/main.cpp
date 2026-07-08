@@ -30,23 +30,12 @@ int main() {
     HGLog->set_level(spdlog::level::trace);
     spdlog::flush_every(std::chrono::seconds(1));
 
-
-
 	osgViewer::Viewer viewer;
 	viewer.apply(new osgViewer::SingleWindow(200, 200, 800, 800));
 	viewer.setRealizeOperation(new ImGuiInitOperation);
 
-	// osg::ref_ptr< CameraHandler> pCameraHandler = new CameraHandler(viewer);
-	// viewer.addEventHandler(pCameraHandler);
 	osg::ref_ptr< CameraHandlerTerrain> pCameraHandler = new CameraHandlerTerrain(viewer);
 	viewer.addEventHandler(pCameraHandler);
-
-	osg::Vec3 eye, up, center;
-	viewer.getCamera()->getViewMatrixAsLookAt(eye, center, up);
-	eye = osg::Vec3(1, 1, 0);
-	center = osg::Vec3(0, 0, 0);
-	up = osg::Vec3(0, 0, 1);
-	viewer.getCamera()->setViewMatrixAsLookAt(eye, center, up);
 
 	auto page = new ImguiMainPage(viewer, pCameraHandler);
 	viewer.addEventHandler(page);
