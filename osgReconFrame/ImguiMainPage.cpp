@@ -10,9 +10,7 @@ void pickCbFunc(const osg::Vec3& vPos, void* pUser) {
 	OsgManager::getInstance()->showPick(vPos);
 }
 
-ImguiMainPage::ImguiMainPage() {
-    
-}
+ImguiMainPage::ImguiMainPage() {}
 
 ImguiMainPage::ImguiMainPage(osgViewer::Viewer& viewer, osg::ref_ptr< CameraHandler> pCameraHandler) {
     pviewer = &viewer;

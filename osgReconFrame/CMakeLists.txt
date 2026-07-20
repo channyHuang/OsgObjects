@@ -4,6 +4,7 @@ project(osgReconFrame)
 
 find_package(OpenSceneGraph REQUIRED osg osgViewer osgUtil osgDB osgGA osgText)
 find_package(glfw3 REQUIRED)
+find_package(OpenMP REQUIRED)
 
 FILE(GLOB FILES_C "*.cpp")
 FILE(GLOB FILES_H "*.h" "*.inl")
@@ -16,8 +17,6 @@ include_directories(${PROJECT_NAME}
 	${GLFW3_INCLUDE_DIR}
 	${OUTER_DIR}
 )
-
-
 
 link_directories(${PROJECT_NAME}
 	${GLFW3_LIBRARY_DIR}
@@ -45,6 +44,7 @@ target_link_libraries(${PROJECT_NAME}
 	glfw
 	Threads::Threads
 	stdc++fs
+	OpenMP::OpenMP_CXX
 )
 else()
 target_link_libraries(${projectName}

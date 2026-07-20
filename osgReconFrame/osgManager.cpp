@@ -1,5 +1,9 @@
 #include "osgManager.h"
 
+#include <regex>
+#include <filesystem>
+#include <omp.h>
+
 #include "commonMath/vector2.h"
 #include "commonMath/vector3.h"
 #include "commonMath/plane.h"
@@ -47,7 +51,22 @@ bool samearea(Vector3 a, Vector3 b) {
 	return true;
 }
 
-osg::Matrix getPoseFromDataset(const std::string& sPoseName) {
+
+bool parseFileName(const std::string& sFileName, size_t &nStep) {
+    std::regex pattern(R"(scan(\d+))");
+    std::smatch matches;
+    
+    if (std::regex_match(sFileName, matches, pattern)) {
+        if (matches.size() >= 1) {
+            nStep = std::stoul(matches[1].str());
+            return true;
+        }
+    }
+    printf("parseFileName failed %s\n", sFileName.c_str());
+    return false;
+}
+
+osg::Matrix readPoseFile(const std::string& sPoseName) {
 	std::ifstream ifs(sPoseName);
 	std::string line;
 	std::getline(ifs, line);
@@ -70,12 +89,12 @@ osg::Matrix getPoseFromDataset(const std::string& sPoseName) {
 	return tr;
 }
 
-osg::ref_ptr<osg::Geometry> getPointFromFile(const std::string& sPointFile) {
-	std::ifstream ifs(sPointFile);
+osg::ref_ptr<osg::Geometry> readPointFile3d(const std::string& sPointFile) {
 	std::string line;
 	osg::ref_ptr<osg::Geometry> pGeom = new osg::Geometry;
 	osg::ref_ptr<osg::Vec3Array> pVertex = new osg::Vec3Array; 
 	osg::ref_ptr<osg::Vec3Array> pColor = new osg::Vec3Array; 
+	std::ifstream ifs(sPointFile);
 	while (!ifs.eof()) {
 		std::getline(ifs, line);
 		std::vector<std::string> data = splitString(line, ' ');
@@ -88,69 +107,72 @@ osg::ref_ptr<osg::Geometry> getPointFromFile(const std::string& sPointFile) {
 		pVertex->push_back(point);
 		pColor->push_back(color);
 	}
+	ifs.close();
+
 	pGeom->setVertexArray(pVertex); 
 	pGeom->setColorArray(pColor, osg::Array::BIND_PER_VERTEX);
-
-	ifs.close();
+	
 	return pGeom;
 }
 
 void OsgManager::reconFrameDataset(const std::string& sDatasetPath) {
-	int stpos = 0, endpos = 9;
-	char cIndex[10] = { 0 };
+	std::vector<size_t> vSteps;
+	for (const auto& entry : std::filesystem::directory_iterator(std::filesystem::absolute(sDatasetPath))) {
+        if (entry.is_regular_file()) {
+            const auto& path = entry.path();
+			std::string sExt = path.extension().string();
+			if (strcmp(sExt.c_str(), ".3d") != 0) continue;
+			std::string sFileNameWithoutExt = path.stem().string();
+			size_t nStep = 0;
+			if (!parseFileName(sFileNameWithoutExt, nStep)) continue;
+			vSteps.push_back(nStep);
+		}
+	}
+
+	std::sort(vSteps.begin(), vSteps.end());
+
+	int stpos = vSteps[0], endpos = vSteps[vSteps.size() - 1];
 	float degree = 20.f; // 40 degree rotation between frames
 
 	if (m_nDatasetPos >= endpos) {
 		m_nDatasetPos = stpos;
 	}
 
+	char cIndex[10] = { 0 };
 	sprintf(cIndex, "%03d", m_nDatasetPos);
 
-	// osg::ref_ptr<osg::Node> pInputPointNode = osgDB::readNodeFile((sDatasetPath + "/scan" + std::string(cIndex) + ".3d").c_str());
-	// osg::ref_ptr<osg::Geode> pGeode = pInputPointNode->asGeode();
-	// if (!pGeode) {
-	// 	std::cout << "not a geode" << std::endl;
-	// 	return;
-	// }
-	// osg::ref_ptr<osg::Drawable> pDrawable = pGeode->getDrawable(0);
-	// if (!pDrawable) {
-	// 	std::cout << "not a drawable" << std::endl;
-	// 	return;
-	// }
-	// osg::ref_ptr<osg::Geometry> pGeom = pDrawable->asGeometry();
-	// if (!pGeom) {
-	// 	std::cout << "not a geometry" << std::endl;
-	// 	return;
-	// }
-	osg::ref_ptr<osg::Geometry> pGeom = getPointFromFile((sDatasetPath + "/scan" + std::string(cIndex) + ".3d").c_str());
-	osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
-
+	std::string sPoint3dName = sDatasetPath + "/scan" + std::string(cIndex) + ".3d";
 	std::string sPoseName = sDatasetPath + "/scan" + std::string(cIndex) + ".pose";
-	osg::Matrix matTranslate = getPoseFromDataset(sPoseName);
+
+	osg::ref_ptr<osg::Geometry> pGeom = readPointFile3d(sPoint3dName);
+	osg::Matrix matTranslate = readPoseFile(sPoseName);
 
 	Vector3 vProjNormal(-std::sin(degree * MathFuncs::PI / 180.f), 0, std::cos(degree * MathFuncs::PI / 180.f));
 	vProjNormal.normalize();
 	Vector3 vProjPosition(vProjNormal.x * 100.f / vProjNormal.z, 0.f, 100.f);
 	Plane projPlane(vProjNormal, vProjPosition);
 
-	std::vector<Vector2> vProjPoints2d;
-
+	osg::Vec3Array* varray = (osg::Vec3Array*)pGeom->getVertexArray();
+	std::vector<Vector2> vProjPoints2d(varray->size());
 	osg::ref_ptr<osg::Geometry> pTargetGeom = new osg::Geometry;
-	osg::ref_ptr<osg::Vec3Array> vTargetVertex = new osg::Vec3Array;
-	osg::ref_ptr<osg::Vec3Array> vTargetNormal = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec3Array> vTargetVertex = new osg::Vec3Array(varray->size());
+	osg::ref_ptr<osg::Vec3Array> vTargetNormal = new osg::Vec3Array(varray->size());
 	osg::ref_ptr<osg::Vec4Array> vTargetColor = (osg::Vec4Array*)pGeom->getColorArray();
 	std::vector<unsigned int> vTargetIndices;
 
-	//std::ofstream ofs("E:/dataset/thermocolorlab_res/scan" + std::string(cIndex) + "_res.obj");
+	int nOMPMaxThread = omp_get_max_threads(); 
+	int nTargetThread = static_cast<int>(nOMPMaxThread >> 2); 
+	if (nTargetThread < 1) nTargetThread = 1;
+
+	#pragma omp parallel for num_threads(nTargetThread)
 	for (int i = 0; i < varray->size(); ++i) {
 		Vector3 vOriginPoint = Vector3(varray->at(i).x(), varray->at(i).y(), varray->at(i).z());
 		Vector3 vProjPoint = MathFuncs::linePlaneIntersect(vOriginPoint, Vector3(0), projPlane);
 
-		vProjPoints2d.push_back(Vector2(vProjPoint.x, vProjPoint.y));
+		vProjPoints2d[i] = Vector2(vProjPoint.x, vProjPoint.y);
 
-		osg::Vec3 vRotPoint = matTranslate.preMult(varray->at(i));
-		vTargetVertex->push_back(vRotPoint);
-		vTargetNormal->push_back(osg::Vec3(0, 0, 0));
+		osg::Vec3f vRotPoint = matTranslate.preMult(varray->at(i));
+		vTargetVertex->at(i) = vRotPoint;
 	}
 
 	Graph_Geometry::Delaunay delaunay;
@@ -183,10 +205,7 @@ void OsgManager::reconFrameDataset(const std::string& sDatasetPath) {
 		vTargetNormal->at(index0) += osg::Vec3(vFaceNormal.x, vFaceNormal.y, vFaceNormal.z);
 		vTargetNormal->at(index1) += osg::Vec3(vFaceNormal.x, vFaceNormal.y, vFaceNormal.z);
 		vTargetNormal->at(index2) += osg::Vec3(vFaceNormal.x, vFaceNormal.y, vFaceNormal.z);
-
-		//ofs << "f " << index0 + 1 << " " << index1 + 1 << " " << index2 + 1 << std::endl;
 	}
-	//ofs.close();
 
 	pTargetGeom->setVertexArray(vTargetVertex);
 	pTargetGeom->setNormalArray(vTargetNormal, osg::Array::Binding::BIND_PER_VERTEX);

@@ -32,7 +32,7 @@ public:
 
 	virtual ~OsgManager();
 
-	void reconFrameDataset(const std::string& sDatasetPath = "/home/channy/Documents/datasets_recon/thermocolorlab");
+	void reconFrameDataset(const std::string& sDatasetPath = "./../data/frame-dataset");
 	void reconFrame(const std::string& sDatasetPath);
 
 protected:

@@ -20,7 +20,7 @@ protected:
 
 private:
     char* cFileName;
-    char* cTexturePath = "./";
+    char* cTexturePath;
     osg::ref_ptr<osgViewer::Viewer> pviewer = nullptr;
     osg::ref_ptr< CameraHandler> m_pCameraHandler = nullptr;
     std::string sFileName = "/home/channy/Documents/thirdlibs/3D-Mesh-Decimation/objs/wheel.obj";
