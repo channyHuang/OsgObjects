@@ -268,36 +268,9 @@ osg::ref_ptr<osgShadow::ShadowedScene> OsgManager::getShadowScene(osg::ref_ptr<o
 	return shadowedScene;
 }
 
-void OsgManager::setLight() {
-	osg::ref_ptr<osg::LightSource> pSunLightSource = new osg::LightSource;
-
-	osg::Light* pSunLight = pSunLightSource->getLight();
-	pSunLight->setLightNum(0);
-	// sunLight->setPosition(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	// sunLight->setAmbient(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	// //sunLight->setDiffuse(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-	// sunLightSource->setLight(sunLight);
-	// sunLightSource->setLocalStateSetModes(osg::StateAttribute::ON);
-	// sunLightSource->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-
-	// osg::LightModel* lightModel = new osg::LightModel;
-	// lightModel->setAmbientIntensity(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
-	// sunLightSource->getOrCreateStateSet()->setAttribute(lightModel);
-
-	osg::ref_ptr<osg::Light> light = new osg::Light;
-    light->setLightNum(0);
-    light->setPosition(osg::Vec4(-1.0f, -1.0f, -1.0f, 0.0f)); 
-    light->setAmbient(osg::Vec4(0.4f, 0.4f, 0.4f, 1.0f)); 
-    light->setDiffuse(osg::Vec4(0.9f, 0.9f, 0.9f, 1.0f)); 
-    light->setSpecular(osg::Vec4(0.2f, 0.2f, 0.2f, 1.0f));
-
-    osg::ref_ptr<osg::LightSource> lightSource = new osg::LightSource;
-    lightSource->setLight(light);
-    lightSource->setReferenceFrame(osg::LightSource::ABSOLUTE_RF);
-  
-
-	m_pRootGeomTerrain->addChild(lightSource);
+void OsgManager::pick(const osg::Vec3& vClickPos) {
+	if (!TerrainModification::getInstance()->m_bActivate) return;
+	printf("click %f %f %f\n", vClickPos.x(), vClickPos.y(), vClickPos.z());
 }
 
 std::string OsgManager::createSpheres(const osg::Vec3& pos) {

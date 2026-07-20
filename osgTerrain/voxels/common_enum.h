@@ -1,5 +1,6 @@
-#ifndef COMMON_ENUM_H
-#define COMMON_ENUM_H
+#pragma once
+
+#include <stdint.h>
 
 enum Notification_Event {
     Notification_Enter = 1,
@@ -7,7 +8,7 @@ enum Notification_Event {
     Notification_Process
 };
 
-enum MaterialType {
+enum MaterialType : uint32_t {
     AIR = 0,
     BASALT,
     BRICK,
@@ -28,18 +29,16 @@ enum MaterialType {
     Material_MAX
 };
 
-enum TerrainBrushType {
-    BrushSphere,
+enum TerrainBrushType : int {
+    BrushSphere = 0,
     BrushSquare
 };
 
-enum TerrainModifyType {
-    Modify_Add,
+enum TerrainModifyType : int {
+    Modify_Add = 0,
     Modify_Reduce,
     Modify_Flat,
     Modify_Replace,
     Modify_Increase,
     Modify_Decrease
 };
-
-#endif // COMMON_ENUM_H

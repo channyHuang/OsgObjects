@@ -1,65 +1,59 @@
 #include "terrainModification.h"
 
-TerrainModification* TerrainModification::instance = nullptr;
+TerrainModification* TerrainModification::m_pInstance = nullptr;
 
-void TerrainModification::updateBrush(const TerrainBrush& brush) {
-	terrainBrush = brush;
+TerrainModification::TerrainModification() {
+	m_pTerrainBrush = std::make_shared<TerrainBrush>();
 }
 
-void TerrainModification::modify(TerrainModifyType modifyType, const Vector3& center) {
-	if (!activate) return;
-	switch (modifyType) {
+TerrainModification::~TerrainModification() {}
+
+void TerrainModification::modify(TerrainModifyType eModifyType, const Vector3& vCenter) {
+	if (!m_bActivate) return;
+	switch (eModifyType) {
 	case Modify_Add:
-		add(center);
+		add(vCenter);
+		break;
+	case Modify_Reduce:
+		reduce(vCenter);
 		break;
 	default:
 		break;
 	}
 }
 
-void TerrainModification::add(const Vector3& center) {
-	std::cout << __FUNCTION__ << " " << center.toString() << std::endl;
-	Vector3 vmin = center, vmax = center;
-	switch (terrainBrush.eBrushType) {
-	case BrushSphere:
-		vmin = center - terrainBrush.radius;
-		vmax = center + terrainBrush.radius;
-		break;
-	case BrushSquare:
-		vmin = center - terrainBrush.size;
-		vmax = center + terrainBrush.size;
-		break;
-	default:
-		break;
-	}
+void TerrainModification::add(const Vector3& vCenter) {
+	Vector3 vMin = vCenter, vMax = vCenter;
+	vMin = vCenter - Vector3(m_pTerrainBrush->m_fSize);
+	vMax = vCenter + Vector3(m_pTerrainBrush->m_fSize);
+	
+	Vector3i&& vMinPos = MathFuncs::vector3FloorOrCeil(vMin, true);
+	Vector3i&& vMaxPos = MathFuncs::vector3FloorOrCeil(vMax, false);
 
-	Vector3i&& vmin_pos = MathFuncs::vector3FloorOrCeil(vmin, true);
-	Vector3i&& vmax_pos = MathFuncs::vector3FloorOrCeil(vmax, false);
+	MaterialType eMaterial = MaterialType::AIR;
+	Vector3 vPos = Vector3(0);
 
-	MaterialType ematerial_origin = MaterialType::AIR;
-	Vector3 pos = Vector3(0), selectionSize = vmax - vmin;
-	Vector3 vhalf_selection_size = selectionSize * .5f;
-	Box box(vmin, vmax);
-
-	for (pos.x = vmin_pos.x; pos.x <= vmax_pos.x; ++pos.x) {
-		for (pos.z = vmin_pos.z; pos.z <= vmax_pos.z; ++pos.z) {
-			for (pos.y = vmin_pos.y; pos.y <= vmax_pos.y; ++pos.y) {
-				float sdf = calcSdf(center, box, pos);
-
-
+	for (vPos.x = vMinPos.x; vPos.x <= vMaxPos.x; ++vPos.x) {
+		for (vPos.z = vMinPos.z; vPos.z <= vMaxPos.z; ++vPos.z) {
+			for (vPos.y = vMinPos.y; vPos.y <= vMaxPos.y; ++vPos.y) {
+				
 			}
 		}
 	}
 }
 
-float TerrainModification::calcSdf(const Vector3& center, const Box& box, const Vector3& pos) {
+void TerrainModification::reduce(const Vector3& vCenter) {}
+
+float TerrainModification::calcSdf(const Vector3& vCenter, const Vector3& vPos) {
 	float sdf = 1.f;
-	switch (terrainBrush.eBrushType) {
+	switch (m_pTerrainBrush->m_eBrushType) {
 	case BrushSphere:
-		sdf = (center - pos).len() - (box.vMax.y - box.vMin.y) * 0.5f;
+		sdf = (vCenter - vPos).len() - m_pTerrainBrush->m_fSize * 0.5f;
 		break;
 	case BrushSquare:
-		sdf = MathFuncs::minDistToCube(pos, box);
+		// sdf = MathFuncs::minDistToCube(vPos, box);
+		break;
+	default:
 		break;
 	}
 	return sdf;

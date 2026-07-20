@@ -45,6 +45,7 @@ public:
 	
 // slots
 	void updateTerrain(const Arrays& surface, Vector3i pos);
+	void pick(const osg::Vec3& vClickPos);
 
 public:
 	bool bReload = true;

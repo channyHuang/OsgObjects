@@ -90,44 +90,82 @@ bool CameraHandlerTerrain::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAc
 	}
 	break;
 	case (osgGA::GUIEventAdapter::DRAG): {
-		if (m_fPreX < 0 || m_fPreY < 0) {
+		if (!m_bEditActivated) {
+			if (m_fPreX < 0 || m_fPreY < 0) {
+				m_fPreX = ea.getX();
+				m_fPreY = ea.getY();
+				return false;
+			}
+			// original axis
+			m_pViewer->getCamera()->getViewMatrixAsLookAt(m_vEye, m_vCenter, m_vUp, m_fViewDistance);
+			osg::Vec3 vLookDir = (m_vCenter - m_vEye);
+			vLookDir.normalize();
+			osg::Vec3 vLookLeft = m_vUp ^ (m_vCenter - m_vEye);
+			vLookLeft.normalize();
+			
+			// rotate
+			osg::Matrix matRotUp = osg::Matrix::rotate(osg::inDegrees((ea.getX() - m_fPreX) * m_fStepScale), m_vUp);
+			osg::Matrix matRotLeft = osg::Matrix::rotate(osg::inDegrees((ea.getY() - m_fPreY) * m_fStepScale), vLookLeft);
+
+			vLookDir = matRotUp * vLookDir;
+			vLookDir.normalize();
+			m_vEye = m_vCenter - (vLookDir * m_fViewDistance);
+			vLookLeft = m_vUp ^ vLookDir;
+			
+			vLookDir = matRotLeft * vLookDir;
+			vLookDir.normalize();
+			m_vEye = m_vCenter - (vLookDir * m_fViewDistance);
+			m_vUp = vLookDir ^ vLookLeft;
+			m_vUp.normalize();
+
+			// update camera
+			m_fViewDistance = (m_vEye - m_vCenter).length();
+			m_pViewer->getCamera()->setViewMatrixAsLookAt(m_vEye, m_vCenter, m_vUp);
 			m_fPreX = ea.getX();
 			m_fPreY = ea.getY();
-			return false;
+		} else {
+			osgViewer::View* pView = dynamic_cast<osgViewer::View*>(&aa);
+			if (!pView) return false;
+
+			osgUtil::LineSegmentIntersector* pIntersector =
+				new osgUtil::LineSegmentIntersector(
+					osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
+			osgUtil::IntersectionVisitor visitor(pIntersector);
+			pView->getCamera()->accept(visitor);
+
+			if (pIntersector->containsIntersections()) {
+				auto hit = pIntersector->getFirstIntersection();
+				osg::Vec3 worldPos = hit.getWorldIntersectPoint(); // 命中点的世界坐标
+				// osg::NodePath nodePath = hit.nodePath;             // 命中节点路径
+				sigPick(worldPos);
+			}
 		}
-		// original axis
-		m_pViewer->getCamera()->getViewMatrixAsLookAt(m_vEye, m_vCenter, m_vUp, m_fViewDistance);
-		osg::Vec3 vLookDir = (m_vCenter - m_vEye);
-		vLookDir.normalize();
-		osg::Vec3 vLookLeft = m_vUp ^ (m_vCenter - m_vEye);
-		vLookLeft.normalize();
-		
-		// rotate
-		osg::Matrix matRotUp = osg::Matrix::rotate(osg::inDegrees((ea.getX() - m_fPreX) * m_fStepScale), m_vUp);
-		osg::Matrix matRotLeft = osg::Matrix::rotate(osg::inDegrees((ea.getY() - m_fPreY) * m_fStepScale), vLookLeft);
-
-		vLookDir = matRotUp * vLookDir;
-		vLookDir.normalize();
-		m_vEye = m_vCenter - (vLookDir * m_fViewDistance);
-		vLookLeft = m_vUp ^ vLookDir;
-		
-		vLookDir = matRotLeft * vLookDir;
-		vLookDir.normalize();
-		m_vEye = m_vCenter - (vLookDir * m_fViewDistance);
-		m_vUp = vLookDir ^ vLookLeft;
-		m_vUp.normalize();
-
-		// update camera
-		m_fViewDistance = (m_vEye - m_vCenter).length();
-		m_pViewer->getCamera()->setViewMatrixAsLookAt(m_vEye, m_vCenter, m_vUp);
-		m_fPreX = ea.getX();
-		m_fPreY = ea.getY();
 	}
 	break;
 	case (osgGA::GUIEventAdapter::RELEASE):	{
 		m_fPreX = -1;
 		m_fPreY = -1;
 	}
+	break;
+	case (osgGA::GUIEventAdapter::PUSH): {
+        if (m_bEditActivated) {
+			osgViewer::View* pView = dynamic_cast<osgViewer::View*>(&aa);
+			if (!pView) return false;
+
+			osgUtil::LineSegmentIntersector* pIntersector =
+				new osgUtil::LineSegmentIntersector(
+					osgUtil::Intersector::WINDOW, ea.getX(), ea.getY());
+			osgUtil::IntersectionVisitor visitor(pIntersector);
+			pView->getCamera()->accept(visitor);
+
+			if (pIntersector->containsIntersections()) {
+				auto hit = pIntersector->getFirstIntersection();
+				osg::Vec3 worldPos = hit.getWorldIntersectPoint(); // 命中点的世界坐标
+				// osg::NodePath nodePath = hit.nodePath;             // 命中节点路径
+				sigPick(worldPos);
+			}
+		}
+    }
 	break;
 	default:
 		return false;

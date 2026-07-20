@@ -31,6 +31,10 @@ protected:
     
 private:
     const int nMaxFileNameLength = 128;
+    bool m_bFirstLoad = true;
+    std::vector<GLuint> vTextureID;
+    std::map<std::string, GLuint> mapTextureID; 
+    std::string sSelectedTex;
 
     osg::ref_ptr<osgViewer::Viewer> pViewer = nullptr;
     osg::ref_ptr< CameraHandlerTerrain> m_pCameraHandler = nullptr;

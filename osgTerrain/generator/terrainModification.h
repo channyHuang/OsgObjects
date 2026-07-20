@@ -1,65 +1,57 @@
-#ifndef TERRAINMODIFICATION_H
-#define TERRAINMODIFICATION_H
+#pragma once
 
 #include "voxels/common_enum.h"
 #include "commonMath/vector3i.h"
 #include "commonMath/vector3.h"
 #include "commonMath/funcs.h"
+#include "commonGeometry/geometrymath.h"
+
+#include <memory>
 
 class TerrainBrush {
 public:
-	TerrainBrush() : eBrushType(BrushSphere) {}
+	TerrainBrush() {}
 	~TerrainBrush() {}
 
 	TerrainBrush& operator = (const TerrainBrush& brush) {
-		eBrushType = brush.eBrushType;
-		center = brush.center;
-		switch (eBrushType) {
-		case BrushSphere:
-			radius = brush.radius;
-			break;
-		case BrushSquare:
-			size = brush.size;
-			break;
-		default:
-			break;
-		}
+		m_eBrushType = brush.m_eBrushType;
+		m_vCenter = brush.m_vCenter;
+		m_fSize = brush.m_fSize;
 		return *this;
 	}
 
 public:
-	int eBrushType;
-	float radius = 2.f;
-	Vector3 size = Vector3(2);
-	Vector3 center;
-	int material = GRASSLAND;
+	int m_eBrushType = TerrainBrushType::BrushSphere;
+	uint32_t m_eMetarial = MaterialType::GRASSLAND;
+	float m_fSize = 10.f;
+	Vector3 m_vCenter = Vector3(0, 0, 0);
 };
 
 class TerrainModification {
 public:
 	static TerrainModification* getInstance() {
-		if (instance == nullptr) {
-			instance = new TerrainModification;
+		if (m_pInstance == nullptr) {
+			m_pInstance = new TerrainModification;
 		}
-		return instance;
+		return m_pInstance;
 	}
 
-	void updateBrush(const TerrainBrush& brush);
-	void modify(TerrainModifyType modifyType, const Vector3& center);
+	void modify(TerrainModifyType eModifyType, const Vector3& vCenter);
 
 public:
-	bool activate = false;
+	bool m_bActivate = false;
+	std::shared_ptr<TerrainBrush> m_pTerrainBrush;
+	int m_eModifyType;
 
 private:
-	TerrainModification() {}
+	TerrainModification();
+	~TerrainModification();
 
-	void add(const Vector3& center);
-	float calcSdf(const Vector3& center, const Box& box, const Vector3& pos);
+	void add(const Vector3& vCenter);
+	void reduce(const Vector3& vCenter);
+	float calcSdf(const Vector3& center, const Vector3& pos);
 
 private:
-	TerrainBrush terrainBrush;
+	static TerrainModification* m_pInstance;
 
-	static TerrainModification* instance;
 };
-
-#endif
